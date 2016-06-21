@@ -174,6 +174,7 @@
 }
 
 - (void) readHeartRateFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double bpm, NSError *error)) onCompleted{
+    //TODO: this method is not used right now in this project. Would be great to create an usage for it in the UI.
     HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRate];
     NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     NSSortDescriptor *stepSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];

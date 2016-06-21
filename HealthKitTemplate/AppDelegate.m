@@ -17,9 +17,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
-    [[HealthKitManager sharedInstance] setTimeActiveOnBackgroundForSampleType:walkingSample];
-    NSLog(@"TimeInterval: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"timeInterval"]);
+    //TODO: uncomment this. It causes an abort() when we try to call the method when we don't have the rights to access to HealthKit.
+    //HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    //[[HealthKitManager sharedInstance] setTimeActiveOnBackgroundForSampleType:walkingSample];
+    //NSLog(@"TimeInterval: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"timeInterval"]);
     return YES;
 }
 
