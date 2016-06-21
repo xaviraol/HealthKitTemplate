@@ -2,11 +2,12 @@
 //  AppDelegate.m
 //  HealthKitTemplate
 //
-//  Created by Xavier Ramos Oliver on 16/06/16.
+//  Created by Sense Health on 16/06/16.
 //  Copyright © 2016 SenseHealth. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "HealthKitManager.h"
 
 @interface AppDelegate ()
 
@@ -14,11 +15,34 @@
 
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    [[HealthKitManager sharedInstance] setTimeActiveOnBackgroundForSampleType:walkingSample];
+    NSLog(@"TimeInterval: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"timeInterval"]);
     return YES;
 }
+
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler{
+    NSLog(@"Background fetch started...");
+    
+    //---do background fetch here---
+    // You have up to 30 seconds to perform the fetch
+    
+    BOOL downloadSuccessful = YES;
+    
+    if (downloadSuccessful) {
+        //---set the flag that data is successfully downloaded---
+        completionHandler(UIBackgroundFetchResultNewData);
+    } else {
+        //---set the flag that download is not successful---
+        completionHandler(UIBackgroundFetchResultFailed);
+    }
+    
+    NSLog(@"Background fetch completed...");
+    
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

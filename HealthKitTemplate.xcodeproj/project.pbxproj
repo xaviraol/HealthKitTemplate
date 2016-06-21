@@ -7,15 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		47135F9A1D182A5300579406 /* AuthorizationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F951D182A5300579406 /* AuthorizationViewController.m */; };
+		47135F9B1D182A5300579406 /* ReadingDataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F971D182A5300579406 /* ReadingDataViewController.m */; };
+		47135F9C1D182A5300579406 /* SavingDataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F991D182A5300579406 /* SavingDataViewController.m */; };
 		471FA6E91D12CEB6006D8E29 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA6E81D12CEB6006D8E29 /* main.m */; };
 		471FA6EC1D12CEB6006D8E29 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA6EB1D12CEB6006D8E29 /* AppDelegate.m */; };
-		471FA6EF1D12CEB6006D8E29 /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA6EE1D12CEB6006D8E29 /* FirstViewController.m */; };
-		471FA6F21D12CEB6006D8E29 /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA6F11D12CEB6006D8E29 /* SecondViewController.m */; };
 		471FA6F51D12CEB6006D8E29 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 471FA6F31D12CEB6006D8E29 /* Main.storyboard */; };
 		471FA6F71D12CEB6006D8E29 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 471FA6F61D12CEB6006D8E29 /* Assets.xcassets */; };
 		471FA6FA1D12CEB6006D8E29 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 471FA6F81D12CEB6006D8E29 /* LaunchScreen.storyboard */; };
 		471FA7051D12CEB7006D8E29 /* HealthKitTemplateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA7041D12CEB7006D8E29 /* HealthKitTemplateTests.m */; };
 		471FA7101D12CEB7006D8E29 /* HealthKitTemplateUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA70F1D12CEB7006D8E29 /* HealthKitTemplateUITests.m */; };
+		471FA71E1D12CF1B006D8E29 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 471FA71D1D12CF1B006D8E29 /* HealthKit.framework */; };
+		471FA7221D12D0E6006D8E29 /* HealthKitManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA7211D12D0E6006D8E29 /* HealthKitManager.m */; };
+		47896E411D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E3A1D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m */; };
+		47896E421D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E3C1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m */; };
+		47896E431D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E3E1D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m */; };
+		47896E441D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E401D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,14 +43,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		47135F941D182A5300579406 /* AuthorizationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationViewController.h; sourceTree = "<group>"; };
+		47135F951D182A5300579406 /* AuthorizationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthorizationViewController.m; sourceTree = "<group>"; };
+		47135F961D182A5300579406 /* ReadingDataViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadingDataViewController.h; sourceTree = "<group>"; };
+		47135F971D182A5300579406 /* ReadingDataViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReadingDataViewController.m; sourceTree = "<group>"; };
+		47135F981D182A5300579406 /* SavingDataViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SavingDataViewController.h; sourceTree = "<group>"; };
+		47135F991D182A5300579406 /* SavingDataViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SavingDataViewController.m; sourceTree = "<group>"; };
 		471FA6E41D12CEB6006D8E29 /* HealthKitTemplate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthKitTemplate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		471FA6E81D12CEB6006D8E29 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		471FA6EA1D12CEB6006D8E29 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		471FA6EB1D12CEB6006D8E29 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		471FA6ED1D12CEB6006D8E29 /* FirstViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FirstViewController.h; sourceTree = "<group>"; };
-		471FA6EE1D12CEB6006D8E29 /* FirstViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FirstViewController.m; sourceTree = "<group>"; };
-		471FA6F01D12CEB6006D8E29 /* SecondViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecondViewController.h; sourceTree = "<group>"; };
-		471FA6F11D12CEB6006D8E29 /* SecondViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
 		471FA6F41D12CEB6006D8E29 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		471FA6F61D12CEB6006D8E29 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		471FA6F91D12CEB6006D8E29 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -54,6 +63,18 @@
 		471FA70B1D12CEB7006D8E29 /* HealthKitTemplateUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthKitTemplateUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		471FA70F1D12CEB7006D8E29 /* HealthKitTemplateUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HealthKitTemplateUITests.m; sourceTree = "<group>"; };
 		471FA7111D12CEB7006D8E29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		471FA71D1D12CF1B006D8E29 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		471FA71F1D12CF1B006D8E29 /* HealthKitTemplate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HealthKitTemplate.entitlements; sourceTree = "<group>"; };
+		471FA7201D12D0E6006D8E29 /* HealthKitManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HealthKitManager.h; sourceTree = "<group>"; };
+		471FA7211D12D0E6006D8E29 /* HealthKitManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HealthKitManager.m; sourceTree = "<group>"; };
+		47896E391D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingCollectionView.h; sourceTree = "<group>"; };
+		47896E3A1D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingCollectionView.m; sourceTree = "<group>"; };
+		47896E3B1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingScrollView.h; sourceTree = "<group>"; };
+		47896E3C1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingScrollView.m; sourceTree = "<group>"; };
+		47896E3D1D17FB8500693BF7 /* TPKeyboardAvoidingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingTableView.h; sourceTree = "<group>"; };
+		47896E3E1D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingTableView.m; sourceTree = "<group>"; };
+		47896E3F1D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+TPKeyboardAvoidingAdditions.h"; sourceTree = "<group>"; };
+		47896E401D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+TPKeyboardAvoidingAdditions.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				471FA71E1D12CF1B006D8E29 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,9 +103,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		47135F931D182A5300579406 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				47135F941D182A5300579406 /* AuthorizationViewController.h */,
+				47135F951D182A5300579406 /* AuthorizationViewController.m */,
+				47135F961D182A5300579406 /* ReadingDataViewController.h */,
+				47135F971D182A5300579406 /* ReadingDataViewController.m */,
+				47135F981D182A5300579406 /* SavingDataViewController.h */,
+				47135F991D182A5300579406 /* SavingDataViewController.m */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		471FA6DB1D12CEB6006D8E29 = {
 			isa = PBXGroup;
 			children = (
+				471FA71D1D12CF1B006D8E29 /* HealthKit.framework */,
 				471FA6E61D12CEB6006D8E29 /* HealthKitTemplate */,
 				471FA7031D12CEB7006D8E29 /* HealthKitTemplateTests */,
 				471FA70E1D12CEB7006D8E29 /* HealthKitTemplateUITests */,
@@ -104,16 +140,17 @@
 		471FA6E61D12CEB6006D8E29 /* HealthKitTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				471FA7201D12D0E6006D8E29 /* HealthKitManager.h */,
+				471FA7211D12D0E6006D8E29 /* HealthKitManager.m */,
+				47135F931D182A5300579406 /* ViewControllers */,
+				471FA71F1D12CF1B006D8E29 /* HealthKitTemplate.entitlements */,
 				471FA6EA1D12CEB6006D8E29 /* AppDelegate.h */,
 				471FA6EB1D12CEB6006D8E29 /* AppDelegate.m */,
-				471FA6ED1D12CEB6006D8E29 /* FirstViewController.h */,
-				471FA6EE1D12CEB6006D8E29 /* FirstViewController.m */,
-				471FA6F01D12CEB6006D8E29 /* SecondViewController.h */,
-				471FA6F11D12CEB6006D8E29 /* SecondViewController.m */,
 				471FA6F31D12CEB6006D8E29 /* Main.storyboard */,
 				471FA6F61D12CEB6006D8E29 /* Assets.xcassets */,
 				471FA6F81D12CEB6006D8E29 /* LaunchScreen.storyboard */,
 				471FA6FB1D12CEB6006D8E29 /* Info.plist */,
+				47896E381D17FB8500693BF7 /* TPKeyboardAvoiding */,
 				471FA6E71D12CEB6006D8E29 /* Supporting Files */,
 			);
 			path = HealthKitTemplate;
@@ -143,6 +180,21 @@
 				471FA7111D12CEB7006D8E29 /* Info.plist */,
 			);
 			path = HealthKitTemplateUITests;
+			sourceTree = "<group>";
+		};
+		47896E381D17FB8500693BF7 /* TPKeyboardAvoiding */ = {
+			isa = PBXGroup;
+			children = (
+				47896E391D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.h */,
+				47896E3A1D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m */,
+				47896E3B1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.h */,
+				47896E3C1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m */,
+				47896E3D1D17FB8500693BF7 /* TPKeyboardAvoidingTableView.h */,
+				47896E3E1D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m */,
+				47896E3F1D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.h */,
+				47896E401D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m */,
+			);
+			path = TPKeyboardAvoiding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -212,6 +264,15 @@
 				TargetAttributes = {
 					471FA6E31D12CEB6006D8E29 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 99F4RM2XFV;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.HealthKit = {
+								enabled = 1;
+							};
+						};
 					};
 					471FA6FF1D12CEB7006D8E29 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -275,10 +336,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				471FA6F21D12CEB6006D8E29 /* SecondViewController.m in Sources */,
+				47135F9A1D182A5300579406 /* AuthorizationViewController.m in Sources */,
+				47896E441D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
+				47896E421D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m in Sources */,
+				47896E411D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				471FA6EC1D12CEB6006D8E29 /* AppDelegate.m in Sources */,
-				471FA6EF1D12CEB6006D8E29 /* FirstViewController.m in Sources */,
+				471FA7221D12D0E6006D8E29 /* HealthKitManager.m in Sources */,
+				47135F9C1D182A5300579406 /* SavingDataViewController.m in Sources */,
 				471FA6E91D12CEB6006D8E29 /* main.m in Sources */,
+				47135F9B1D182A5300579406 /* ReadingDataViewController.m in Sources */,
+				47896E431D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -421,6 +488,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HealthKitTemplate/HealthKitTemplate.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Xavier Ramos (49EEZ5H2N7)";
 				INFOPLIST_FILE = HealthKitTemplate/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cortex.HealthKitTemplate;
@@ -432,6 +501,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HealthKitTemplate/HealthKitTemplate.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Xavier Ramos (49EEZ5H2N7)";
 				INFOPLIST_FILE = HealthKitTemplate/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cortex.HealthKitTemplate;
@@ -504,6 +575,7 @@
 				471FA7161D12CEB7006D8E29 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		471FA7171D12CEB7006D8E29 /* Build configuration list for PBXNativeTarget "HealthKitTemplateTests" */ = {
 			isa = XCConfigurationList;
@@ -512,6 +584,7 @@
 				471FA7191D12CEB7006D8E29 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		471FA71A1D12CEB7006D8E29 /* Build configuration list for PBXNativeTarget "HealthKitTemplateUITests" */ = {
 			isa = XCConfigurationList;
@@ -520,6 +593,7 @@
 				471FA71C1D12CEB7006D8E29 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

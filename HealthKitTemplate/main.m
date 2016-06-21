@@ -2,7 +2,7 @@
 //  main.m
 //  HealthKitTemplate
 //
-//  Created by Xavier Ramos Oliver on 16/06/16.
+//  Created by Sense Health on 16/06/16.
 //  Copyright © 2016 SenseHealth. All rights reserved.
 //
 
