@@ -9,9 +9,10 @@
 #import "HealthKitManager.h"
 #import <HealthKit/HealthKit.h>
 
+
+static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 @interface HealthKitManager ()
 
-@property (nonatomic, retain) HKHealthStore *healthStore;
 
 @end
 
@@ -49,6 +50,8 @@
                             ];
     
     [self.healthStore requestAuthorizationToShareTypes:[NSSet setWithArray:shareTypes] readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
+        [[NSUserDefaults standardUserDefaults]setBool:success forKey:kHEALTHKIT_AUTHORIZATION];
+        [[NSUserDefaults standardUserDefaults]synchronize];
         completion(success,error);
     }];
 }
@@ -74,7 +77,7 @@
     [self.healthStore executeQuery:query];
 }
 
-- (void) readCoveredDistanceForSampleType:(HKSampleType *)sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) onCompleted{
+- (void) readCoveredDistanceForSampleType:(HKSampleType *)sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
     
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
@@ -112,7 +115,7 @@
                                                                   
                                                               }
                                                               NSLog(@"total distance %f", totalDistance);
-                                                              onCompleted(totalDistance, listOfSpeed, error);
+                                                              completion(totalDistance, listOfSpeed, error);
                                                           }];
     [self.healthStore executeQuery:stepQuery];
 }
@@ -153,13 +156,17 @@
 
 - (void) readSleepAnalysisFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSError *error))completion{
     
-    //TODO: create a predicate to get sleep info for a certain range of hours/days...
-    
     HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    //HKCategorySample *sleepSample = [HKCategorySample categorySampleWithType:sleepAnalysis value:HKCategoryValueSleepAnalysisInBed startDate:startDate endDate:endDate];
+    
+    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    //HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
     HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:sleepAnalysis
-                                                           predicate:nil
+                                                           predicate:predicate
                                                                limit:HKObjectQueryNoLimit
-                                                     sortDescriptors:nil
+                                                     sortDescriptors:@[sortDescriptor]
                                                       resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
                                                           NSTimeInterval sleepTime = 0;
                                                           for (HKQuantitySample *sample in results) {
@@ -173,7 +180,7 @@
     [self.healthStore executeQuery:query];
 }
 
-- (void) readHeartRateFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double bpm, NSError *error)) onCompleted{
+- (void) readHeartRateFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double bpm, NSError *error)) completion{
     //TODO: this method is not used right now in this project. Would be great to create an usage for it in the UI.
     HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierHeartRate];
     NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
@@ -191,10 +198,8 @@
             
         }
         NSLog(@"total distance %f", totalBpm);
-        onCompleted(totalBpm, error);
+        completion(totalBpm, error);
     }];
-    
-    
     [self.healthStore executeQuery:stepQuery];
 }
 
@@ -205,21 +210,19 @@
                   error.localizedDescription);
             abort();
         }
-        //TODO:
-        //        [self readTimeActiveForSampleType:sampleType withSortDescriptors:nil withPredicate:nil andCompletion:^(NSTimeInterval timeInterval, NSError *error) {
-        //            NSLog(@"Walking timeInterval: %f", timeInterval);
-        //        }];
-        completionHandler();
-        
+        //TODO: Deep investigation to understand how it works.
+        [self readCoveredDistanceForSampleType:sampleType fromStartDate:nil toEndDate:nil withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
+            NSLog(@"Covered distance: %f", totalDistance);
+        }];
     }];
     [self.healthStore executeQuery:query];
+    
     [self.healthStore enableBackgroundDeliveryForType:sampleType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
         if (success) {
             NSLog(@"success background changes");
         }
     }];
 }
-
 
 #pragma mark - Helper methods to write custom data to HealthKit
 

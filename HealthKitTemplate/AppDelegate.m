@@ -9,6 +9,9 @@
 #import "AppDelegate.h"
 #import "HealthKitManager.h"
 
+
+static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
+
 @interface AppDelegate ()
 
 @end
@@ -17,10 +20,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    //TODO: uncomment this. It causes an abort() when we try to call the method when we don't have the rights to access to HealthKit.
-    //HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
-    //[[HealthKitManager sharedInstance] setTimeActiveOnBackgroundForSampleType:walkingSample];
-    //NSLog(@"TimeInterval: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"timeInterval"]);
+    //TODO: Right now we only check if we have an authorization for some kind of data, but nos specifically the one which we'll use.
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:kHEALTHKIT_AUTHORIZATION]== YES) {
+        
+        HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+        [[HealthKitManager sharedInstance] setTimeActiveOnBackgroundForSampleType:walkingSample];
+        NSLog(@"TimeInterval: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"timeInterval"]);
+    }
+
     return YES;
 }
 
