@@ -23,20 +23,45 @@
 - (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion;
 
 /**
- * Reads the user's timeActive within a temporal range from HealthKit. This method works for both 'walking&running' and 'cycling' dataTypes.
+ * Reads the user's walking timeActive within a temporal range from HealthKit.
  *
- *  @param sampleType type of sample where to get info
  *  @param startDate date to start counting
  *  @param endDate date to end counting
  *  @param completion block with the timeActive and an error.
  */
-- (void) readTimeActiveForSampleType:(HKSampleType *) sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+- (void) readWalkingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+/**
+ * Reads the user's timeActive of the last walking&running sample added to HealthKit.
+ *
+ *  @param completion block with the timeActive and an error.
+ */
+- (void) readMostRecentWalkingTimeActiveSampleWithCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
 
-- (void) readTimeActiveFromWalkingAndRunningfromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+/**
+ * Enables HealthKit to alert app of new changes of walking&running data.
+ */
+- (void) setTimeActiveOnBackgroundForWalkingSample;
 
-- (void) setTimeActiveOnBackgroundForWalkingRunningSample;
+/**
+ * Reads the user's walking timeActive within a temporal range from HealthKit.
+ *
+ *  @param startDate date to start counting
+ *  @param endDate date to end counting
+ *  @param completion block with the timeActive and an error.
+ */
+- (void) readCyclingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+/**
+ * Reads the user's timeActive of the last walking&running sample added to HealthKit.
+ *
+ *  @param completion block with the timeActive and an error.
+ */
+- (void) readMostRecentCyclingTimeActiveSampleWithCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
 
-- (void) setStepActiveOnBackground;
+/**
+ * Enables HealthKit to alert app of new changes of walking&running data.
+ */
+- (void) setTimeActiveOnBackgroundForCyclingSample;
+
 
 /**
  * Reads the user's coveredDistance within a temporal range from HealthKit. This method works for both 'walking&running' and 'cycling' dataTypes.

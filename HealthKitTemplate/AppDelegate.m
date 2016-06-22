@@ -23,7 +23,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     //TODO: Right now we only check if we have an authorization for some kind of data, but nos specifically the one which we'll use.
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:kHEALTHKIT_AUTHORIZATION]== YES) {
-        [[HealthKitProvider sharedInstance] setTimeActiveOnBackgroundForWalkingRunningSample];
+        [[HealthKitProvider sharedInstance] setTimeActiveOnBackgroundForWalkingSample];
     }
     return YES;
 }

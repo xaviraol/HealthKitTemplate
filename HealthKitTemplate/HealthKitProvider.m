@@ -9,6 +9,7 @@
 #import "HealthKitProvider.h"
 #import <HealthKit/HealthKit.h>
 #import "HKWalkingRunning.h"
+#import "HKCycling.h"
 
 
 static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
@@ -57,24 +58,50 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-- (void) readTimeActiveFromWalkingAndRunningfromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
+/* Walking and Running methods*/
+
+- (void) readWalkingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     HKWalkingRunning *walkingRunning = [[HKWalkingRunning alloc] init];
-    
-    // reading data from date to date
-//    [walkingRunning readTimeActiveFromWalkingAndRunningfromStartDate:startDate toEndDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
-//        completion(timeActive,error);
-//    }];
-    
-    // reading last added sample
-    [walkingRunning readLastTimeActiveWalkingRunningSampleWithCompletion:^(NSTimeInterval timeActive, NSError *error) {
+    [walkingRunning readWalkingTimeActiveFromStartDate:startDate toEndDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
         completion(timeActive,error);
     }];
 }
 
-- (void) setTimeActiveOnBackgroundForWalkingRunningSample{
+- (void) readMostRecentWalkingTimeActiveSampleWithCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     HKWalkingRunning *walkingRunning = [[HKWalkingRunning alloc] init];
-    [walkingRunning setTimeActiveOnBackgroundForWalkingRunningSample];
+    [walkingRunning readMostRecentWalkingTimeActiveSampleWithCompletion:^(NSTimeInterval timeActive, NSError *error) {
+        completion(timeActive,error);
+    }];
 }
+
+- (void) setTimeActiveOnBackgroundForWalkingSample{
+    HKWalkingRunning *walkingRunning = [[HKWalkingRunning alloc] init];
+    [walkingRunning setTimeActiveOnBackgroundForWalkingSample];
+}
+
+/* Cycling methods*/
+
+- (void) readCyclingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
+    HKCycling *cycling = [[HKCycling alloc] init];
+    [cycling readCyclingTimeActiveFromStartDate:startDate toEndDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
+        completion(timeActive,error);
+    }];
+}
+
+- (void) readMostRecentCyclingTimeActiveSampleWithCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
+    HKCycling *cycling = [[HKCycling alloc] init];
+    [cycling readMostRecentCyclingTimeActiveSampleWithCompletion:^(NSTimeInterval timeActive, NSError *error) {
+        completion(timeActive,error);
+    }];
+}
+
+- (void) setTimeActiveOnBackgroundForCyclingSample{
+    HKCycling *cycling = [[HKCycling alloc] init];
+    [cycling setTimeActiveOnBackgroundForCyclingSample];
+}
+
+/* Other methods */
+
 - (void) readCoveredDistanceForSampleType:(HKSampleType *)sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
     
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];

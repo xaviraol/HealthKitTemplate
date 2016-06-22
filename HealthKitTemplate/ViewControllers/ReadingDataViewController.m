@@ -65,7 +65,7 @@ static int kSECONDS_IN_HOUR = 3600;
 - (void) readWalkingData{
     HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
     
-    [[HealthKitProvider sharedInstance] readTimeActiveFromWalkingAndRunningfromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeActive, NSError *error) {
+    [[HealthKitProvider sharedInstance] readWalkingTimeActiveFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeActive, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been walking for %.2f h.", timeActive / kSECONDS_IN_HOUR];
@@ -89,7 +89,7 @@ static int kSECONDS_IN_HOUR = 3600;
 -(void) readCyclingData{
     HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
 
-    [[HealthKitProvider sharedInstance] readTimeActiveForSampleType:cyclingSample fromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
+    [[HealthKitProvider sharedInstance] readCyclingTimeActiveFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been cycling for %.2f h.", timeInterval / kSECONDS_IN_HOUR];
