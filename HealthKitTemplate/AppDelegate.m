@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "HealthKitManager.h"
+#import "HealthKitProvider.h"
 
 
 static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
@@ -23,12 +23,8 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     //TODO: Right now we only check if we have an authorization for some kind of data, but nos specifically the one which we'll use.
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey:kHEALTHKIT_AUTHORIZATION]== YES) {
-        
-        HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
-        [[HealthKitManager sharedInstance] setTimeActiveOnBackgroundForSampleType:walkingSample];
-        NSLog(@"TimeInterval: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"timeInterval"]);
+        [[HealthKitProvider sharedInstance] setTimeActiveOnBackgroundForWalkingRunningSample];
     }
-
     return YES;
 }
 

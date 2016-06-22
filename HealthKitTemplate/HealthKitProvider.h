@@ -1,5 +1,5 @@
 //
-//  HealthKitManager.h
+//  HealthKitProvider.h
 //  HealthKitTemplate
 //
 //  Created by Sense Health on 16/06/16.
@@ -9,9 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <HealthKit/Healthkit.h>
 
-@interface HealthKitManager : NSObject
+@interface HealthKitProvider : NSObject
 
-+ (HealthKitManager*)sharedInstance;
++ (HealthKitProvider*)sharedInstance;
 
 @property (nonatomic, retain) HKHealthStore *healthStore;
 
@@ -31,6 +31,12 @@
  *  @param completion block with the timeActive and an error.
  */
 - (void) readTimeActiveForSampleType:(HKSampleType *) sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+
+- (void) readTimeActiveFromWalkingAndRunningfromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+
+- (void) setTimeActiveOnBackgroundForWalkingRunningSample;
+
+- (void) setStepActiveOnBackground;
 
 /**
  * Reads the user's coveredDistance within a temporal range from HealthKit. This method works for both 'walking&running' and 'cycling' dataTypes.

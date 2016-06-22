@@ -7,7 +7,7 @@
 //
 
 #import "AuthorizationViewController.h"
-#import "HealthKitManager.h"
+#import "HealthKitProvider.h"
 
 @interface AuthorizationViewController ()
 
@@ -31,7 +31,7 @@
 - (IBAction) healthIntegrationButtonSwitched:(UISwitch*)sender {
     
     if (sender.isOn) {
-        [[HealthKitManager sharedInstance] requestHealthKitAuthorization:^(BOOL success, NSError *error) {
+        [[HealthKitProvider sharedInstance] requestHealthKitAuthorization:^(BOOL success, NSError *error) {
             if (success) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     _registrationFeedback.text = [NSString stringWithFormat:@"Authorization succeded!"];

@@ -7,7 +7,7 @@
 //
 
 #import "SavingDataViewController.h"
-#import "HealthKitManager.h"
+#import "HealthKitProvider.h"
 
 @interface SavingDataViewController ()
 
@@ -74,7 +74,7 @@
 
 - (void) addWalkingData{
     
-    [[HealthKitManager sharedInstance] writeWalkingRunningDistance:[_distanceTextfield.text doubleValue]
+    [[HealthKitProvider sharedInstance] writeWalkingRunningDistance:[_distanceTextfield.text doubleValue]
                                                          fromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text]
                                                        toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text]
                                                    withCompletion:^(bool savedSuccessfully, NSError *error) {
@@ -94,7 +94,7 @@
 }
 
 - (void)addCyclingData{
-    [[HealthKitManager sharedInstance] writeCyclingDistance:[_distanceTextfield.text doubleValue]
+    [[HealthKitProvider sharedInstance] writeCyclingDistance:[_distanceTextfield.text doubleValue]
                                                   fromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text]
                                                 toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text]
                                             withCompletion:^(bool savedSuccessfully, NSError *error) {
@@ -114,7 +114,7 @@
 }
 
 - (void) addStepsData{
-    [[HealthKitManager sharedInstance] writeSteps:[_stepsTextfield.text doubleValue]
+    [[HealthKitProvider sharedInstance] writeSteps:[_stepsTextfield.text doubleValue]
                                         fromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text]
                                       toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text]
                                   withCompletion:^(bool savedSuccessfully, NSError *error) {
@@ -133,7 +133,7 @@
 }
 
 - (void) addSleepData{
-    [[HealthKitManager sharedInstance] writeSleepAnalysisFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text]
+    [[HealthKitProvider sharedInstance] writeSleepAnalysisFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text]
                                                    toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text]
                                               withCompletion:^(bool savedSuccessfully, NSError *error) {
                                                   if (savedSuccessfully) {

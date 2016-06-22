@@ -1,27 +1,28 @@
 //
-//  HealthKitManager.m
+//  HealthKitProvider.m
 //  HealthKitTemplate
 //
 //  Created by Sense Health on 16/06/16.
 //  Copyright © 2016 SenseHealth. All rights reserved.
 //
 
-#import "HealthKitManager.h"
+#import "HealthKitProvider.h"
 #import <HealthKit/HealthKit.h>
+#import "HKWalkingRunning.h"
 
 
 static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
-@interface HealthKitManager ()
+@interface HealthKitProvider ()
 
 
 @end
 
-@implementation HealthKitManager
+@implementation HealthKitProvider
 
-+ (HealthKitManager *)sharedInstance {
++ (HealthKitProvider *)sharedInstance {
     
-    static HealthKitManager *instance = nil;
-    instance = [[HealthKitManager alloc] init];
+    static HealthKitProvider *instance = nil;
+    instance = [[HealthKitProvider alloc] init];
     instance.healthStore = [[HKHealthStore alloc] init];
     return instance;
 }
@@ -56,27 +57,24 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-
-
-- (void)readTimeActiveForSampleType:(HKSampleType *)sampleType fromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(NSTimeInterval timeInterval, NSError *error))completion{
-    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
-    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:sampleType
-                                                           predicate:predicate
-                                                               limit:HKObjectQueryNoLimit
-                                                     sortDescriptors:@[sortDescriptor]
-                                                      resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
-                                                          NSTimeInterval timeActive = 0;
-                                                          for (HKQuantitySample *sample in results) {
-                                                              if ([sample.quantity doubleValueForUnit:[HKUnit meterUnit]] >= 1){
-                                                                  timeActive += [sample.endDate timeIntervalSinceDate:sample.startDate];
-                                                              }
-                                                          }
-                                                          completion(timeActive,error);
-                                                      }];
-    [self.healthStore executeQuery:query];
+- (void) readTimeActiveFromWalkingAndRunningfromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
+    HKWalkingRunning *walkingRunning = [[HKWalkingRunning alloc] init];
+    
+    // reading data from date to date
+//    [walkingRunning readTimeActiveFromWalkingAndRunningfromStartDate:startDate toEndDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
+//        completion(timeActive,error);
+//    }];
+    
+    // reading last added sample
+    [walkingRunning readLastTimeActiveWalkingRunningSampleWithCompletion:^(NSTimeInterval timeActive, NSError *error) {
+        completion(timeActive,error);
+    }];
 }
 
+- (void) setTimeActiveOnBackgroundForWalkingRunningSample{
+    HKWalkingRunning *walkingRunning = [[HKWalkingRunning alloc] init];
+    [walkingRunning setTimeActiveOnBackgroundForWalkingRunningSample];
+}
 - (void) readCoveredDistanceForSampleType:(HKSampleType *)sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
     
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
