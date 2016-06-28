@@ -62,6 +62,8 @@
  */
 - (void) setTimeActiveOnBackgroundForCyclingSample;
 
+- (void) provesBackground;
+
 
 /**
  * Reads the user's coveredDistance within a temporal range from HealthKit. This method works for both 'walking&running' and 'cycling' dataTypes.

@@ -21,10 +21,20 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     //TODO: Right now we only check if we have an authorization for some kind of data, but nos specifically the one which we'll use.
+    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {}];
     
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:kHEALTHKIT_AUTHORIZATION]== YES) {
-        [[HealthKitProvider sharedInstance] setTimeActiveOnBackgroundForWalkingSample];
-    }
+    HKQuery *query = [[HKObserverQuery alloc] initWithSampleType:stepCountType predicate:nil updateHandler:
+                      ^void(HKObserverQuery *query, HKObserverQueryCompletionHandler completionHandler, NSError *error)
+                      {
+                          //If we don't call the completion handler right away, Apple gets mad. They'll try sending us the same notification here 3 times on a back-off algorithm.  The preferred method is we just call the completion handler.  Makes me wonder why they even HAVE a completionHandler if we're expected to just call it right away...
+                          if (completionHandler) {
+                              completionHandler();
+                          }
+                          //HANDLE DATA HERE
+                          NSLog(@"nova dada afegida!");
+                      }];
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
     return YES;
 }
 
@@ -47,7 +57,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     NSLog(@"Background fetch completed...");
     
 }
-
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

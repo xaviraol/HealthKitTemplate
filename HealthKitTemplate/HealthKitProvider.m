@@ -10,6 +10,7 @@
 #import <HealthKit/HealthKit.h>
 #import "HKWalkingRunning.h"
 #import "HKCycling.h"
+#import "HKStepCounterSensor.h"
 
 
 static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
@@ -248,6 +249,27 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
         }
     }];
 }
+
+- (void) provesBackground{
+    HKSampleType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:stepCountType predicate:nil updateHandler:^(HKObserverQuery *query, HKObserverQueryCompletionHandler completionHandler, NSError *error) {
+        if (error) {
+            NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
+                  error.localizedDescription);
+            abort();
+        }
+        HKStepCounterSensor *stepCounter = [[HKStepCounterSensor alloc] init];
+        [stepCounter onStepsUpdate];
+    }];
+    
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
+        if (success) {
+            NSLog(@"success background changes");
+        }
+    }];
+}
+
 
 #pragma mark - Helper methods to write custom data to HealthKit
 
