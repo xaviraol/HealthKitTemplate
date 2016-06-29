@@ -11,6 +11,7 @@
 #import "HKWalkingRunning.h"
 #import "HKCycling.h"
 #import "HKStepCounterSensor.h"
+#import <UIKit/UIKit.h>
 
 
 static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
@@ -55,8 +56,32 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     [self.healthStore requestAuthorizationToShareTypes:[NSSet setWithArray:shareTypes] readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
         [[NSUserDefaults standardUserDefaults]setBool:success forKey:kHEALTHKIT_AUTHORIZATION];
         [[NSUserDefaults standardUserDefaults]synchronize];
+        [self startObservingStepChanges];
         completion(success,error);
     }];
+}
+- (void) startObservingStepChanges{
+    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {}];
+    
+    HKQuery *query = [[HKObserverQuery alloc] initWithSampleType:stepCountType predicate:nil updateHandler:
+                      ^void(HKObserverQuery *query, HKObserverQueryCompletionHandler completionHandler, NSError *error)
+                      {
+                          //If we don't call the completion handler right away, Apple gets mad. They'll try sending us the same notification here 3 times on a back-off algorithm.  The preferred method is we just call the completion handler.  Makes me wonder why they even HAVE a completionHandler if we're expected to just call it right away...
+                          if (completionHandler) {
+                              HKStepCounterSensor *stepCounter = [[HKStepCounterSensor alloc] init];
+                              [stepCounter onStepsUpdate];
+                              UILocalNotification* localNotification = [[UILocalNotification alloc] init];
+                              localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:3];
+                              localNotification.alertBody = [NSString stringWithFormat:@"Nova dada afegida: %@",[[NSUserDefaults standardUserDefaults] valueForKey:@"cumulativeSteps"]];
+                              localNotification.timeZone = [NSTimeZone defaultTimeZone];
+                              localNotification.timeZone = [NSTimeZone defaultTimeZone];
+                              localNotification.applicationIconBadgeNumber = [[UIApplication sharedApplication] applicationIconBadgeNumber] + 1;
+                              [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+                              completionHandler();
+                          }
+                      }];
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
 }
 
 /* Walking and Running methods*/
@@ -265,7 +290,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
     [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
         if (success) {
-            NSLog(@"success background changes");
+            NSLog(@"Background changes enabled!");
         }
     }];
 }

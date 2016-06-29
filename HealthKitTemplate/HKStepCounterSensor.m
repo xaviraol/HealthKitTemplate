@@ -8,6 +8,7 @@
 
 #import "HKStepCounterSensor.h"
 #import "HealthKitProvider.h"
+#import <UIKit/UIKit.h>
 
 @implementation HKStepCounterSensor
 
@@ -15,6 +16,9 @@
     
     [self getCumulativeStepsWithCompletion:^(int steps, NSError *error) {
         NSLog(@"steps: %d",steps);
+        
+        [[NSUserDefaults standardUserDefaults]setValue:[NSNumber numberWithInteger:steps] forKey:@"cumulativeSteps"];
+        [[NSUserDefaults standardUserDefaults]synchronize];
     }];
 }
 
