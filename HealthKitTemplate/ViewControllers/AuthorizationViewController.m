@@ -48,4 +48,40 @@
         //disable HealthKit
     }
 }
+
+- (IBAction)stepCountsIntegrationButtonSwitched:(UISwitch*)sender{
+    if (sender.isOn) {
+        [[HealthKitProvider sharedInstance] requestHealthKitAuthorizationForHKDataQuantityType:@"HKStepCounter" withCompletion:^(BOOL success, NSError *error){
+            if (success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _registrationFeedback.text = [NSString stringWithFormat:@"StepCount succeded!"];
+                    _registrationFeedback.textColor = [UIColor greenColor];
+                });
+            }else{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _registrationFeedback.text = [NSString stringWithFormat:@"StepCount failed!"];
+                    _registrationFeedback.textColor = [UIColor redColor];
+                });
+            }
+        }];
+    }
+}
+
+- (IBAction)sleepAnalysisIntegrationButtonSwitched:(UISwitch*)sender{
+    if (sender.isOn) {
+        [[HealthKitProvider sharedInstance] requestHealthKitAuthorizationForHKDataCategoryType:@"HKSleepAnalysis" withCompletion:^(BOOL success, NSError *error){
+            if (success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _registrationFeedback.text = [NSString stringWithFormat:@"Sleep succeded!"];
+                    _registrationFeedback.textColor = [UIColor greenColor];
+                });
+            }else{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _registrationFeedback.text = [NSString stringWithFormat:@"Sleep failed!"];
+                    _registrationFeedback.textColor = [UIColor redColor];
+                });
+            }
+        }];
+    }
+}
 @end

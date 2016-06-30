@@ -49,17 +49,18 @@ static int kSECONDS_IN_HOUR = 3600;
 
 - (IBAction)readDataFromHealthKit:(id)sender{
     [self hideKeyboard];
+    NSLog(@"AUTHORIZATION STATE: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount]]);
 
-    int index = _segmentedControl.selectedSegmentIndex;
-    if (index == 0) {
-        [self readWalkingData];
-    }else if (index == 1){
-        [self readCyclingData];
-    }else if (index == 2){
-        [self readStepsData];
-    }else{
-        [self readSleepData];
-    }
+//    int index = _segmentedControl.selectedSegmentIndex;
+//    if (index == 0) {
+//        [self readWalkingData];
+//    }else if (index == 1){
+//        [self readCyclingData];
+//    }else if (index == 2){
+//        [self readStepsData];
+//    }else{
+//        [self readSleepData];
+//    }
     
 }
 - (void) readWalkingData{

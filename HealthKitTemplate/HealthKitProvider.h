@@ -20,7 +20,10 @@
  *
  *  @param completion block with a success boolean and an error.
  */
+
 - (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion;
+- (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;
+- (void) requestHealthKitAuthorizationForHKDataCategoryType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;
 
 /**
  * Reads the user's walking timeActive within a temporal range from HealthKit.

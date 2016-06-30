@@ -24,6 +24,41 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
     [[UIApplication sharedApplication] registerUserNotificationSettings:mySettings];
 
+    NSLog(@"AUTHORIZATION STATE: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount]]);
+//    NSArray *quantityTypesUsedInApp = @[HKQuantityTypeIdentifierStepCount];
+//    
+//    for (NSString *identifier in quantityTypesUsedInApp) {
+//        
+//        HKQuantityType *sampleType = [HKQuantityType quantityTypeForIdentifier:identifier];
+//        NSSet *requestSampleUnit = [NSSet setWithObject:sampleType];
+//        
+//        [[HealthKitProvider sharedInstance].healthStore preferredUnitsForQuantityTypes:requestSampleUnit completion:^(NSDictionary *preferredUnits, NSError *error) {
+//            
+//            if (!error) {
+//                
+//                HKUnit *unit = [preferredUnits objectForKey:sampleType];
+//                NSLog(@"%@ : %@", sampleType.identifier, unit.unitString);
+//                //sampleType enabled for read
+//                
+//            } else {
+//                
+//                switch (error.code) {
+//                    case 5:
+//                        
+//                        NSLog(@"%@ access denied", sampleType.identifier);
+//                        //sampleType denied for read
+//                        break;
+//                        
+//                    default:
+//                        NSLog(@"request preffered quantity types error: %@", error);
+//                        break;
+//                }
+//                
+//                
+//            }
+//            
+//        }];
+//    }
 
     NSLog(@"CumulativeSteps = %@",[[NSUserDefaults standardUserDefaults] valueForKey:@"cumulativeSteps"]);
     return YES;

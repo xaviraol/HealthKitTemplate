@@ -60,6 +60,50 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
         completion(success,error);
     }];
 }
+
+- (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion{
+    
+    self.healthStore = [[HKHealthStore alloc] init];
+    if ([HKHealthStore isHealthDataAvailable] == NO) {
+        return;
+    }
+    NSArray *readTypes = @[[HKObjectType quantityTypeForIdentifier:[self getHKSampleTypeFromString:dataType]]];
+    [self.healthStore requestAuthorizationToShareTypes:nil readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
+        if (success) {
+            NSLog(@"[HealthKitDataProvider] Success!");
+        }else{
+            NSLog(@"[HealthKitDataProvider] Error!");
+            NSLog(@"Error: %@",error.localizedDescription);
+        }
+        completion(success,error);
+    }];
+}
+- (void) requestHealthKitAuthorizationForHKDataCategoryType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion{
+    
+    self.healthStore = [[HKHealthStore alloc] init];
+    if ([HKHealthStore isHealthDataAvailable] == NO) {
+        return;
+    }
+    NSArray *readTypes = @[[HKObjectType categoryTypeForIdentifier:[self getHKSampleTypeFromString:dataType]]];
+    [self.healthStore requestAuthorizationToShareTypes:nil readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
+        if (success) {
+            NSLog(@"[HealthKitDataProvider] Success!");
+        }else{
+            NSLog(@"[HealthKitDataProvider] Error!");
+            NSLog(@"Error: %@",error.localizedDescription);
+        }
+        completion(success,error);
+    }];
+}
+- (NSDictionary*) healthKitDataTypeStringToHKSample {
+    return @{@"HKStepCounter": HKQuantityTypeIdentifierStepCount,
+             @"HKSleepAnalysis": HKCategoryTypeIdentifierSleepAnalysis,
+             };
+}
+
+- (HKSampleType *)getHKSampleTypeFromString:(NSString *)string{
+    return (HKSampleType *)[[self healthKitDataTypeStringToHKSample] objectForKey:string];
+}
 - (void) startObservingStepChanges{
     HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
     [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {}];
