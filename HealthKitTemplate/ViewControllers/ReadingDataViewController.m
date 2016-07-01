@@ -51,16 +51,16 @@ static int kSECONDS_IN_HOUR = 3600;
     [self hideKeyboard];
     NSLog(@"AUTHORIZATION STATE: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount]]);
 
-//    int index = _segmentedControl.selectedSegmentIndex;
-//    if (index == 0) {
-//        [self readWalkingData];
-//    }else if (index == 1){
-//        [self readCyclingData];
-//    }else if (index == 2){
-//        [self readStepsData];
-//    }else{
-//        [self readSleepData];
-//    }
+    int index = (int)_segmentedControl.selectedSegmentIndex;
+    if (index == 0) {
+        [self readWalkingData];
+    }else if (index == 1){
+        [self readCyclingData];
+    }else if (index == 2){
+        [self readStepsData];
+    }else{
+        [self readSleepData];
+    }
     
 }
 - (void) readWalkingData{
@@ -113,15 +113,28 @@ static int kSECONDS_IN_HOUR = 3600;
 
 - (void) readStepsData{
     
-    [[HealthKitProvider sharedInstance] readStepsTimeActiveFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSInteger totalSteps, NSError *error) {
-        if (!error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been walking for %.2f h.", timeInterval / kSECONDS_IN_HOUR];
-            });
-        } else {
-            NSLog(@"Error retrieving steps data: %@", error.localizedDescription);
-        }
+//    [[HealthKitProvider sharedInstance] readStepsTimeActiveFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSInteger totalSteps, NSError *error) {
+//        if (!error) {
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been walking for %.2f h.", timeInterval / kSECONDS_IN_HOUR];
+//            });
+//        } else {
+//            NSLog(@"Error retrieving steps data: %@", error.localizedDescription);
+//        }
+//    }];
+    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    
+    HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:nil options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
+                if (!error) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        _resultsFirstLabel.text = [NSString stringWithFormat:@"You've walked %.2d steps",(int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]]];
+                    });
+                } else {
+                    NSLog(@"Error retrieving steps data: %@", error.localizedDescription);
+                }
     }];
+    
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
 }
 
 - (void) readSleepData{
