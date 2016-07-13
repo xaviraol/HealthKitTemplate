@@ -37,7 +37,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }
     NSArray *readTypes = @[
                            [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning],
-                           //[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
+                           [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
                            [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
                            [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis],
 
@@ -45,7 +45,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     
     NSArray *shareTypes = @[
                             [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning],
-                            //[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
+                            [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
                             [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
                             [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis],
                             ];
@@ -100,6 +100,11 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 
 
+- (void) readCumulativeStepCount{
+    HKStepCounterSensor *sensor = [[HKStepCounterSensor alloc] init];
+    [sensor onStepsUpdate];
+}
+
 
 
 
@@ -109,31 +114,45 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 
 
 - (void) startObservingStepChanges{
-    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {}];
+    HKSampleType *sampleType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:sampleType predicate:nil updateHandler:^(HKObserverQuery *query,
+                     HKObserverQueryCompletionHandler completionHandler,
+                     NSError *error) {
+         
+         if (error) {
+             
+             // Perform Proper Error Handling Here...
+             NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
+                   error.localizedDescription);
+             abort();
+         }else{
+             [self updateDailyStepCount];
+             completionHandler();
+         }
+     }];
+      [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:sampleType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {
+          if (success) {
+              NSLog(@"enabled background delivery!");
+          }else{
+              NSLog(@"failed to enabling backgroun delivery!");
+          }
+      }];
+    [self.healthStore executeQuery:query];
+}
+- (void) updateDailyStepCount{
+    NSLog(@"Banyoles vinga va!");
     
-    HKQuery *query = [[HKObserverQuery alloc] initWithSampleType:stepCountType predicate:nil updateHandler:
-                      ^void(HKObserverQuery *query, HKObserverQueryCompletionHandler completionHandler, NSError *error)
-                      {
-                          //If we don't call the completion handler right away, Apple gets mad. They'll try sending us the same notification here 3 times on a back-off algorithm.  The preferred method is we just call the completion handler.  Makes me wonder why they even HAVE a completionHandler if we're expected to just call it right away...
-                          if (completionHandler) {
-                              HKStepCounterSensor *stepCounter = [[HKStepCounterSensor alloc] init];
-                              [stepCounter onStepsUpdate];
-                              UILocalNotification* localNotification = [[UILocalNotification alloc] init];
-                              localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:3];
-                              localNotification.alertBody = [NSString stringWithFormat:@"Nova dada afegida: %@",[[NSUserDefaults standardUserDefaults] valueForKey:@"cumulativeSteps"]];
-                              localNotification.timeZone = [NSTimeZone defaultTimeZone];
-                              localNotification.timeZone = [NSTimeZone defaultTimeZone];
-                              localNotification.applicationIconBadgeNumber = [[UIApplication sharedApplication] applicationIconBadgeNumber] + 1;
-                              [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
-                              completionHandler();
-                          }
-                      }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
 }
 
 /* Walking and Running methods*/
-
+- (void) getCumulativeStepsWithCompletion:(void (^)(int steps, NSError *error))completion{
+    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    
+    HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:nil options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
+        completion((int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]],error);
+    }];
+    [self.healthStore executeQuery:query];
+}
 - (void) readWalkingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     HKWalkingRunning *walkingRunning = [[HKWalkingRunning alloc] init];
     [walkingRunning readWalkingTimeActiveFromStartDate:startDate toEndDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
@@ -391,6 +410,38 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     [self.healthStore saveObject:sleepSample withCompletion:^(BOOL success, NSError * _Nullable error) {
         completion(success, error);
     }];
+}
+
+
+- (void) startObservingCyclingChanges{
+        HKSampleType *sampleType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+        HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:sampleType predicate:nil updateHandler:^(HKObserverQuery *query,
+                                                                                                                      HKObserverQueryCompletionHandler completionHandler,
+                                                                                                                      NSError *error) {
+            
+            if (error) {
+                
+                // Perform Proper Error Handling Here...
+                NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
+                      error.localizedDescription);
+                abort();
+            }else{
+                [self commitNewHealthKitSample];
+                completionHandler();
+            }
+        }];
+        [self.healthStore enableBackgroundDeliveryForType:sampleType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {
+            if (success) {
+                NSLog(@"enabled background delivery!");
+            }else{
+                NSLog(@"failed to enabling backgroun delivery!");
+            }
+        }];
+        [self.healthStore executeQuery:query];
+}
+
+- (void) commitNewHealthKitSample{
+        NSLog(@"TIME ACTIVE de les bicis");
 }
 
 @end

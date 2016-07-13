@@ -15,11 +15,15 @@
 
 @property (nonatomic, retain) HKHealthStore *healthStore;
 
+- (void) startObservingStepChanges;
+- (void) startObservingCyclingChanges;
 /**
  * Requests the user to acces HealthKit data. It already contains the needed types of data for our app.
  *
  *  @param completion block with a success boolean and an error.
  */
+
+- (void) readCumulativeStepCount;
 
 - (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion;
 - (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;

@@ -15,7 +15,7 @@
 - (void) onStepsUpdate{
     
     [self getCumulativeStepsWithCompletion:^(int steps, NSError *error) {
-        NSLog(@"steps: %d",steps);
+        NSLog(@"steps recollits: %d",steps);
         
         [[NSUserDefaults standardUserDefaults]setValue:[NSNumber numberWithInteger:steps] forKey:@"cumulativeSteps"];
         [[NSUserDefaults standardUserDefaults]synchronize];
@@ -25,7 +25,7 @@
 - (void) getCumulativeStepsWithCompletion:(void (^)(int steps, NSError *error))completion{
     
     HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-    
+    NSLog(@"stepCountType : %@",stepCountType);
     HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:nil options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
         completion((int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]],error);
     }];

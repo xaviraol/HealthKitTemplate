@@ -122,19 +122,21 @@ static int kSECONDS_IN_HOUR = 3600;
 //            NSLog(@"Error retrieving steps data: %@", error.localizedDescription);
 //        }
 //    }];
-    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-    
-    HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:nil options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
-                if (!error) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        _resultsFirstLabel.text = [NSString stringWithFormat:@"You've walked %.2d steps",(int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]]];
-                    });
-                } else {
-                    NSLog(@"Error retrieving steps data: %@", error.localizedDescription);
-                }
-    }];
-    
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+//    HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+//    
+//    HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:nil options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
+//                if (!error) {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        _resultsFirstLabel.text = [NSString stringWithFormat:@"You've walked %.2d steps",(int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]]];
+//                    });
+//                } else {
+//                    NSLog(@"Error retrieving steps data: %@", error.localizedDescription);
+//                }
+//    }];
+//    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+
+    [[HealthKitProvider sharedInstance] readCumulativeStepCount];
+
 }
 
 - (void) readSleepData{
