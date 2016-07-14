@@ -26,6 +26,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     
     // Override point for customization after application launch.
     //[[HealthKitProvider sharedInstance] startObservingStepChanges];
+    //[self dateTesting];
     return YES;
 }
 
@@ -38,6 +39,20 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     free(machine);
     NSArray *devicesWithoutMotionSensor = @[@"iPhone6,1",@"iPhone6,2",@"iPhone7,1",@"iPhone7,2",@"iPhone8,1",@"iPhone8,2",@"x86_64",@"i386"];
     return [devicesWithoutMotionSensor containsObject:platform];
+}
+
+- (NSDate *) beginningOfTheDay:(NSDate *)date{
+    
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents* components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
+    
+    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    NSDate *beginningOfTheDay = [gregorianCalendar dateFromComponents:components];
+    NSLog(@"BEGINNING OF TODAY: %@",beginningOfTheDay);
+    
+    return  beginningOfTheDay;
+//    NSDate *end = [beginningOfTheDay dateByAddingTimeInterval:3600*24];
+//    NSLog(@"END OF TODAY: %@",end);
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
