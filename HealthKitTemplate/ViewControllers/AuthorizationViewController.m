@@ -23,9 +23,9 @@
     _registrationFeedback.text = @"";
 }
 - (void) viewDidAppear:(BOOL)animated{
-    NSLog(@"[viewDidAppear] StepCount: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount]]);
-    NSLog(@"[viewDidAppear] SleepAnalysis: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]]);
-    NSLog(@"[viewDidAppear] Walking: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning]]);
+//    NSLog(@"[viewDidAppear] StepCount: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount]]);
+//    NSLog(@"[viewDidAppear] SleepAnalysis: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]]);
+//    NSLog(@"[viewDidAppear] Walking: %ld",(long)[[HealthKitProvider sharedInstance].healthStore authorizationStatusForType:[HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning]]);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -131,4 +131,5 @@
         }];
     }
 }
+
 @end

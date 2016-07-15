@@ -15,20 +15,42 @@
 
 @property (nonatomic, retain) HKHealthStore *healthStore;
 
-- (void) startObservingStepChanges;
-- (void) startObservingCyclingChanges;
+
 /**
  * Requests the user to acces HealthKit data. It already contains the needed types of data for our app.
  *
  *  @param completion block with a success boolean and an error.
  */
 
-- (void) readCumulativeStepCount;
-
+//permissions
 - (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion;
+
 - (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;
+
 - (void) requestHealthKitAuthorizationForHKDataCategoryType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;
 
+
+//reading stepcount
+- (void) readCumulativeStepsFrom:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(int steps, NSError *error))completion;
+
+- (void) readStepsTimeActiveFromDate:(NSDate*)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(NSTimeInterval timeInterval, NSInteger totalSteps, NSError *error))completion;
+
+
+//reading walking and running
+- (void) readWalkingTimeActiveFromDate:(NSDate*) startDate toDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+
+- (void) readCoveredWalkingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion;
+
+
+//reading cycling
+- (void) readCyclingTimeActiveFromDate:(NSDate*) startDate toDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+
+- (void) readCoveredCyclingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion;
+
+
+//-------------------------------------
+- (void) startObservingStepChanges;
+- (void) startObservingCyclingChanges;
 /**
  * Reads the user's walking timeActive within a temporal range from HealthKit.
  *
@@ -124,5 +146,8 @@
 - (void) writeCyclingDistance:(double)distance fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
 - (void) writeSteps:(double)steps fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
 - (void) writeSleepAnalysisFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
+
+
+
 
 @end
