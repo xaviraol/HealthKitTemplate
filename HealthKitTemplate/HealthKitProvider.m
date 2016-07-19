@@ -30,17 +30,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     return instance;
 }
 
-# pragma mark - Asking for Healthkit Permission
-
-/**
-*
-*   requestHealthKitAuthorization: This method asks the user for the permissions to access Healthkit data. In this case, we ask for the
-*   permissions of the different data types at once. So the user can enable all of them at the same time. A part from that, with this method
-*   we ask for to read data that already exists in Healthkit and also to write new data to Healthkit.
-*
-*   In this example, we ask permissions for: Walking and Running, Cycling, Step counter and Sleep Analysis.
-*
-**/
+# pragma mark - Healthkit Permissions
 
 - (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion{
     
@@ -68,14 +58,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-/**
-*
-*   requestHealthKitAuthorizationForHKDataQuantityType: Similar as the previous method, but here we have a dataType string as an input.
-*   So in this method we ask permissions for only one dataType. In this case, we ask for permissions for a QuantityType.
-*   In this examples, our quantityTypes are stepCounter, walking and running, and cycling.
-*
-**/
-
 - (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion{
     
     self.healthStore = [[HKHealthStore alloc] init];
@@ -94,12 +76,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-/**
- *
- *   requestHealthKitAuthorizationForHKDataCategoryType: In this case, we ask for permissions for a QuantityType.
- *   In this examples, we have only one category type, sleep analysis.
- *
- **/
 - (void) requestHealthKitAuthorizationForHKDataCategoryType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion{
     
     self.healthStore = [[HKHealthStore alloc] init];
@@ -132,30 +108,29 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     [self.healthStore executeQuery:query];
 }
 
-- (void) readStepsTimeActiveFromDate:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval timeInterval, NSInteger totalSteps, NSError *error))completion{
-    
+- (void) readStepsTimeActiveFromDate:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval timeInterval, NSError *error))completion{
     HKSampleType *type = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
     NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-    NSSortDescriptor *stepSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    NSSortDescriptor *stepSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
     
     HKSampleQuery *stepQuery = [[HKSampleQuery alloc] initWithSampleType:type predicate:stepPredicate limit:HKObjectQueryNoLimit sortDescriptors:@[stepSortDescriptor] resultsHandler:^(HKSampleQuery *query, NSArray *hkSample, NSError *error){
         
         NSTimeInterval totalTime = 0;
-        NSInteger totalStep = 0;
-        
+        NSDate *lastStepDataPoint;
+        NSDate *stepDataPointDate;
+
         for (int i = 0; i < [hkSample count]; i++) {
-            HKQuantitySample *sampleStep = [hkSample objectAtIndex:i];
-            NSDate *startDate = [sampleStep startDate];
-            NSDate *endDate = [sampleStep endDate];
-            NSTimeInterval secondBetween = [endDate timeIntervalSinceDate:startDate];
-            NSInteger stepCount = [[sampleStep quantity] doubleValueForUnit:[HKUnit countUnit]];
-            totalTime += secondBetween;
-            totalStep += stepCount;
-            // TODO: time active can be zero if data source from healthkit app, because start date and end date is same
-            NSLog(@"second activity %@ = %@ = %f = %ld", startDate, endDate, secondBetween, (long)stepCount);
+            HKQuantitySample *stepDataPoint = [hkSample objectAtIndex:i];
+            if ([[stepDataPoint quantity] doubleValueForUnit:[HKUnit countUnit]]>45) {
+                stepDataPointDate = [stepDataPoint startDate];
+                NSTimeInterval secondsBetweenDataPoints = [stepDataPointDate timeIntervalSinceDate:lastStepDataPoint];
+                if (secondsBetweenDataPoints < 300) {
+                    totalTime += secondsBetweenDataPoints;
+                }
+            }
+            lastStepDataPoint = stepDataPointDate;
         }
-        NSLog(@"total activity %@ = %@ = %f = %ld", startDate, endDate, totalTime, (long)totalStep);
-        completion(totalTime, totalStep, error);
+        completion(totalTime, error);
     }];
     
     [self.healthStore executeQuery:stepQuery];
@@ -182,7 +157,9 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 - (void) readCoveredWalkingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
     HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
-    
+    [self readCoveredDistanceForSampleType:walkingSample fromStartDate:startDate toEndDate:endDate withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
+        completion (totalDistance, listOfSpeed, error);
+    }];
 }
 
 // Cycling
@@ -210,8 +187,10 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 
 }
 - (void) readCoveredCyclingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
-    HKSampleType *sampleType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
-
+    HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+    [self readCoveredDistanceForSampleType:cyclingSample fromStartDate:startDate toEndDate:endDate withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
+        completion (totalDistance, listOfSpeed, error);
+    }];
 }
 
 // Sleep Analysis

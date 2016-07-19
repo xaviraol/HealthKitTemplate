@@ -63,22 +63,21 @@ static int kSECONDS_IN_HOUR = 3600;
     
 }
 - (void) readWalkingData{
-    HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    //HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
     
     [[HealthKitProvider sharedInstance] readWalkingTimeActiveFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeActive, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been walking for %.2f h.", timeActive / kSECONDS_IN_HOUR];
+                _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been walking for %.0f h.", timeActive / kSECONDS_IN_HOUR];
             });
         } else {
             NSLog(@"Error retrieving timeActive data: %@", error.localizedDescription);
         }
     }];
-
-    [[HealthKitProvider sharedInstance] readCoveredDistanceForSampleType:walkingSample fromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
+    [[HealthKitProvider sharedInstance] readCoveredWalkingDistanceFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsSecondLabel.text = [NSString stringWithFormat:@"You've walked %.2f km", totalDistance];
+                _resultsSecondLabel.text = [NSString stringWithFormat:@"You've walked %.0f km", totalDistance];
             });
         } else {
             NSLog(@"Error retrieving distance data: %@", error.localizedDescription);
@@ -92,14 +91,13 @@ static int kSECONDS_IN_HOUR = 3600;
     [[HealthKitProvider sharedInstance] readCyclingTimeActiveFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been cycling for %.2f h.", timeInterval / kSECONDS_IN_HOUR];
+                _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been cycling for %.2f h.", timeInterval / 60];
             });
         } else {
             NSLog(@"Error retrieving data: %@", error.localizedDescription);
         }
     }];
-    
-    [[HealthKitProvider sharedInstance] readCoveredDistanceForSampleType:cyclingSample fromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
+    [[HealthKitProvider sharedInstance] readCoveredCyclingDistanceFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsSecondLabel.text = [NSString stringWithFormat:@"You've cycled %.2f km", totalDistance];
@@ -111,6 +109,7 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) readStepsData{
+    
     [[HealthKitProvider sharedInstance] readCumulativeStepsFrom:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(int steps, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -121,10 +120,10 @@ static int kSECONDS_IN_HOUR = 3600;
         }
     }];
     
-    [[HealthKitProvider sharedInstance] readStepsTimeActiveFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSInteger totalSteps, NSError *error) {
+    [[HealthKitProvider sharedInstance] readStepsTimeActiveFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsSecondLabel.text = [NSString stringWithFormat:@"You've been walking for %.2f minutes.", timeInterval / kSECONDS_IN_HOUR];
+                _resultsSecondLabel.text = [NSString stringWithFormat:@"You've been walking for %.0f minutes.", timeInterval / 60];
             });
         } else {
             NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
