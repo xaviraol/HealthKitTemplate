@@ -35,20 +35,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     return [devicesWithoutMotionSensor containsObject:platform];
 }
 
-- (NSDate *) beginningOfTheDay:(NSDate *)date{
-    
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDateComponents* components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
-    
-    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    NSDate *beginningOfTheDay = [gregorianCalendar dateFromComponents:components];
-    NSLog(@"BEGINNING OF TODAY: %@",beginningOfTheDay);
-    
-    return  beginningOfTheDay;
-//    NSDate *end = [beginningOfTheDay dateByAddingTimeInterval:3600*24];
-//    NSLog(@"END OF TODAY: %@",end);
-}
-
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.

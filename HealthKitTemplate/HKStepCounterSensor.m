@@ -45,12 +45,12 @@
         [self onStepsUpdate];
     }];
     
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
-    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
-        if (success) {
-            NSLog(@"success background changes");
-        }
-    }];
+//    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+//    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
+//        if (success) {
+//            NSLog(@"success background changes");
+//        }
+//    }];
 }
 
 

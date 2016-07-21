@@ -30,22 +30,15 @@ static int kSECONDS_IN_HOUR = 3600;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    _dateFormatter = [[NSDateFormatter alloc] init];
-    [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    
+    [self dateFormatEditor];
     _resultsFirstLabel.text = @"";
     _resultsSecondLabel.text = @"";
     
     [_segmentedControl addTarget:self
                           action:@selector(changeIndex:)
                 forControlEvents:UIControlEventValueChanged];
-    
-    UIDatePicker *datePicker = [[UIDatePicker alloc]init];
-    [datePicker setDate:[NSDate date]];
-    [datePicker addTarget:self action:@selector(updateTextField:) forControlEvents:UIControlEventValueChanged];
-    [_startDateTextfield setInputView:datePicker];
-    [_endDateTextfield setInputView:datePicker];
 }
+
 
 - (IBAction)readDataFromHealthKit:(id)sender{
     [self hideKeyboard];
@@ -63,8 +56,6 @@ static int kSECONDS_IN_HOUR = 3600;
     
 }
 - (void) readWalkingData{
-    //HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
-    
     [[HealthKitProvider sharedInstance] readWalkingTimeActiveFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeActive, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -86,9 +77,7 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 -(void) readCyclingData{
-    HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
-
-    [[HealthKitProvider sharedInstance] readCyclingTimeActiveFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
+    [[HealthKitProvider sharedInstance] readCyclingTimeActiveFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You've been cycling for %.2f h.", timeInterval / 60];
@@ -97,6 +86,7 @@ static int kSECONDS_IN_HOUR = 3600;
             NSLog(@"Error retrieving data: %@", error.localizedDescription);
         }
     }];
+    
     [[HealthKitProvider sharedInstance] readCoveredCyclingDistanceFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -167,5 +157,17 @@ static int kSECONDS_IN_HOUR = 3600;
     _resultsFirstLabel.text = @"";
     _resultsSecondLabel.text = @"";
 }
+
+- (void) dateFormatEditor{
+    _dateFormatter = [[NSDateFormatter alloc] init];
+    [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    
+    UIDatePicker *datePicker = [[UIDatePicker alloc]init];
+    [datePicker setDate:[NSDate date]];
+    [datePicker addTarget:self action:@selector(updateTextField:) forControlEvents:UIControlEventValueChanged];
+    [_startDateTextfield setInputView:datePicker];
+    [_endDateTextfield setInputView:datePicker];
+}
+
 
 @end

@@ -140,20 +140,10 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 
 - (void) readWalkingTimeActiveFromDate:(NSDate *) startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     
-    HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
-    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
-    
-    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:walkingSample predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:@[sortDescriptor] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results,NSError * _Nullable error) {
-        NSTimeInterval timeActive = 0;
-        for (HKQuantitySample *sample in results) {
-            if ([sample.quantity doubleValueForUnit:[HKUnit meterUnit]] >= 1){
-                timeActive += [sample.endDate timeIntervalSinceDate:sample.startDate];
-            }
-        }
-        completion(timeActive,error);
+   HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
+    [self readActivityTimeActiveForSampleType:walkingSample fromDate:startDate toDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
+        completion (timeActive,error);
     }];
-    [self.healthStore executeQuery:query];
 }
 - (void) readCoveredWalkingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
     HKSampleType *walkingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning];
@@ -163,10 +153,28 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 
 // Cycling
-
 - (void) readCyclingTimeActiveFromDate:(NSDate*) startDate toDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     
-    HKSampleType *sampleType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+    HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+    [self readActivityTimeActiveForSampleType:cyclingSample fromDate:startDate toDate:endDate withCompletion:^(NSTimeInterval timeActive, NSError *error) {
+        completion (timeActive,error);
+    }];
+}
+
+- (void) readCoveredCyclingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
+    HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
+    [self readCoveredDistanceForSampleType:cyclingSample fromStartDate:startDate toEndDate:endDate withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
+        completion (totalDistance, listOfSpeed, error);
+    }];
+}
+
+// Sleep Analysis
+
+
+
+/* Other methods */
+
+- (void) readActivityTimeActiveForSampleType:(HKSampleType *)sampleType fromDate:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
     
@@ -184,20 +192,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
                                                           completion(timeActive,error);
                                                       }];
     [self.healthStore executeQuery:query];
-
 }
-- (void) readCoveredCyclingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
-    HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
-    [self readCoveredDistanceForSampleType:cyclingSample fromStartDate:startDate toEndDate:endDate withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
-        completion (totalDistance, listOfSpeed, error);
-    }];
-}
-
-// Sleep Analysis
-
-
-
-/* Other methods */
 
 - (void) readCoveredDistanceForSampleType:(HKSampleType *)sampleType fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion{
     
@@ -301,9 +296,9 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     HKUnit *stepsUnit = [HKUnit countUnit];
     HKQuantity *stepsQuantity = [HKQuantity quantityWithUnit:stepsUnit doubleValue:steps];
     
-    HKQuantitySample *cyclingSample = [HKQuantitySample quantitySampleWithType:stepsQuantityType quantity:stepsQuantity startDate:startDate endDate:endDate];
+    HKQuantitySample *stepsSample = [HKQuantitySample quantitySampleWithType:stepsQuantityType quantity:stepsQuantity startDate:startDate endDate:endDate];
     
-    [self.healthStore saveObject:cyclingSample withCompletion:^(BOOL success, NSError * _Nullable error) {
+    [self.healthStore saveObject:stepsSample withCompletion:^(BOOL success, NSError * _Nullable error) {
         completion(success,error);
     }];
 }

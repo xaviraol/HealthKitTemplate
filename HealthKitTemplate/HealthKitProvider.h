@@ -55,11 +55,7 @@
 - (void) readCumulativeStepsFrom:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(int steps, NSError *error))completion;
 
 /**
- *  Using the dates that a stepCount dataPoint has, this method calculates an aproximation of the time that the user has been active between two different dates.
- *  It uses a simple algorithm, with two simple rules: 1. If the stepCount value is lower than 45 steps, it discards it. 2. If the difference between two different
- *  dataPoints is higher than 200 seconds, it considers that the user has not been moving between this time. (While moving, healhtkit sends dataPoints at least every
- *  two minutes.
- *
+*   Using the dates that a stepCount dataPoint has, this method calculates an aproximation of the time that the user has been active between two different dates. It uses a simple algorithm, with two simple rules: 1. If the stepCount value is lower than 45 steps, it discards it. 2. If the difference between two different dataPoints is higher than 200 seconds, it considers that the user has not been moving between this time. (While moving, healhtkit sends dataPoints at least every two minutes.
  **/
 - (void) readStepsTimeActiveFromDate:(NSDate*)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(NSTimeInterval timeInterval, NSError *error))completion;
 
@@ -73,10 +69,22 @@
 //reading cycling
 - (void) readCyclingTimeActiveFromDate:(NSDate*) startDate toDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
 
+
 - (void) readCoveredCyclingDistanceFromDate:(NSDate *)startDate toDate:(NSDate*)endDate withCompletion:(void (^)(double totalDistance, NSArray * listOfSpeed, NSError *error)) completion;
 
+#pragma mark - Writing data to Healthkit
+
+- (void) writeWalkingRunningDistance:(double)distance fromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
+
+- (void) writeCyclingDistance:(double)distance fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
+
+- (void) writeSteps:(double)steps fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
+
+- (void) writeSleepAnalysisFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
 
 //-------------------------------------
+//-------------------------------------
+
 - (void) startObservingStepChanges;
 - (void) startObservingCyclingChanges;
 /**
@@ -86,7 +94,7 @@
  *  @param endDate date to end counting
  *  @param completion block with the timeActive and an error.
  */
-- (void) readWalkingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+//- (void) readWalkingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
 /**
  * Reads the user's timeActive of the last walking&running sample added to HealthKit.
  *
@@ -106,7 +114,7 @@
  *  @param endDate date to end counting
  *  @param completion block with the timeActive and an error.
  */
-- (void) readCyclingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
+//- (void) readCyclingTimeActiveFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion;
 /**
  * Reads the user's timeActive of the last walking&running sample added to HealthKit.
  *
@@ -170,10 +178,7 @@
 /**
  * Helper methods to add custom data to Healthkit.
  */
-- (void) writeWalkingRunningDistance:(double)distance fromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
-- (void) writeCyclingDistance:(double)distance fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
-- (void) writeSteps:(double)steps fromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
-- (void) writeSleepAnalysisFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
+
 
 
 
