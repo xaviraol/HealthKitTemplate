@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		47112E061D1A8AC2008E6365 /* HKWalkingRunning.m in Sources */ = {isa = PBXBuildFile; fileRef = 47112E051D1A8AC2008E6365 /* HKWalkingRunning.m */; };
 		47135F9A1D182A5300579406 /* AuthorizationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F951D182A5300579406 /* AuthorizationViewController.m */; };
 		47135F9B1D182A5300579406 /* ReadingDataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F971D182A5300579406 /* ReadingDataViewController.m */; };
 		47135F9C1D182A5300579406 /* SavingDataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F991D182A5300579406 /* SavingDataViewController.m */; };
@@ -20,8 +19,6 @@
 		471FA7101D12CEB7006D8E29 /* HealthKitTemplateUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA70F1D12CEB7006D8E29 /* HealthKitTemplateUITests.m */; };
 		471FA71E1D12CF1B006D8E29 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 471FA71D1D12CF1B006D8E29 /* HealthKit.framework */; };
 		471FA7221D12D0E6006D8E29 /* HealthKitProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 471FA7211D12D0E6006D8E29 /* HealthKitProvider.m */; };
-		47638F381D22CE6D004DCE56 /* HKStepCounterSensor.m in Sources */ = {isa = PBXBuildFile; fileRef = 47638F371D22CE6D004DCE56 /* HKStepCounterSensor.m */; };
-		4766CBE81D1AF63D00B9AD7F /* HKCycling.m in Sources */ = {isa = PBXBuildFile; fileRef = 4766CBE71D1AF63D00B9AD7F /* HKCycling.m */; };
 		47896E411D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E3A1D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m */; };
 		47896E421D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E3C1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m */; };
 		47896E431D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 47896E3E1D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m */; };
@@ -46,8 +43,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		47112E041D1A8AC2008E6365 /* HKWalkingRunning.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HKWalkingRunning.h; sourceTree = "<group>"; };
-		47112E051D1A8AC2008E6365 /* HKWalkingRunning.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HKWalkingRunning.m; sourceTree = "<group>"; };
 		47135F941D182A5300579406 /* AuthorizationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationViewController.h; sourceTree = "<group>"; };
 		47135F951D182A5300579406 /* AuthorizationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthorizationViewController.m; sourceTree = "<group>"; };
 		47135F961D182A5300579406 /* ReadingDataViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadingDataViewController.h; sourceTree = "<group>"; };
@@ -72,10 +67,6 @@
 		471FA71F1D12CF1B006D8E29 /* HealthKitTemplate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = HealthKitTemplate.entitlements; sourceTree = "<group>"; };
 		471FA7201D12D0E6006D8E29 /* HealthKitProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HealthKitProvider.h; sourceTree = "<group>"; };
 		471FA7211D12D0E6006D8E29 /* HealthKitProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HealthKitProvider.m; sourceTree = "<group>"; };
-		47638F361D22CE6D004DCE56 /* HKStepCounterSensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HKStepCounterSensor.h; sourceTree = "<group>"; };
-		47638F371D22CE6D004DCE56 /* HKStepCounterSensor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HKStepCounterSensor.m; sourceTree = "<group>"; };
-		4766CBE61D1AF63D00B9AD7F /* HKCycling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HKCycling.h; sourceTree = "<group>"; };
-		4766CBE71D1AF63D00B9AD7F /* HKCycling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HKCycling.m; sourceTree = "<group>"; };
 		47896E391D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingCollectionView.h; sourceTree = "<group>"; };
 		47896E3A1D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingCollectionView.m; sourceTree = "<group>"; };
 		47896E3B1D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingScrollView.h; sourceTree = "<group>"; };
@@ -117,10 +108,10 @@
 			children = (
 				47135F941D182A5300579406 /* AuthorizationViewController.h */,
 				47135F951D182A5300579406 /* AuthorizationViewController.m */,
-				47135F961D182A5300579406 /* ReadingDataViewController.h */,
-				47135F971D182A5300579406 /* ReadingDataViewController.m */,
 				47135F981D182A5300579406 /* SavingDataViewController.h */,
 				47135F991D182A5300579406 /* SavingDataViewController.m */,
+				47135F961D182A5300579406 /* ReadingDataViewController.h */,
+				47135F971D182A5300579406 /* ReadingDataViewController.m */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -149,7 +140,6 @@
 		471FA6E61D12CEB6006D8E29 /* HealthKitTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				4766CB8B1D1A93DC00B9AD7F /* HKSensors */,
 				471FA7201D12D0E6006D8E29 /* HealthKitProvider.h */,
 				471FA7211D12D0E6006D8E29 /* HealthKitProvider.m */,
 				47135F931D182A5300579406 /* ViewControllers */,
@@ -190,19 +180,6 @@
 				471FA7111D12CEB7006D8E29 /* Info.plist */,
 			);
 			path = HealthKitTemplateUITests;
-			sourceTree = "<group>";
-		};
-		4766CB8B1D1A93DC00B9AD7F /* HKSensors */ = {
-			isa = PBXGroup;
-			children = (
-				47638F361D22CE6D004DCE56 /* HKStepCounterSensor.h */,
-				47638F371D22CE6D004DCE56 /* HKStepCounterSensor.m */,
-				47112E041D1A8AC2008E6365 /* HKWalkingRunning.h */,
-				47112E051D1A8AC2008E6365 /* HKWalkingRunning.m */,
-				4766CBE61D1AF63D00B9AD7F /* HKCycling.h */,
-				4766CBE71D1AF63D00B9AD7F /* HKCycling.m */,
-			);
-			name = HKSensors;
 			sourceTree = "<group>";
 		};
 		47896E381D17FB8500693BF7 /* TPKeyboardAvoiding */ = {
@@ -364,15 +341,12 @@
 			files = (
 				47135F9A1D182A5300579406 /* AuthorizationViewController.m in Sources */,
 				47896E441D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
-				47638F381D22CE6D004DCE56 /* HKStepCounterSensor.m in Sources */,
-				4766CBE81D1AF63D00B9AD7F /* HKCycling.m in Sources */,
 				47896E421D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m in Sources */,
 				47896E411D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				471FA6EC1D12CEB6006D8E29 /* AppDelegate.m in Sources */,
 				471FA7221D12D0E6006D8E29 /* HealthKitProvider.m in Sources */,
 				47135F9C1D182A5300579406 /* SavingDataViewController.m in Sources */,
 				471FA6E91D12CEB6006D8E29 /* main.m in Sources */,
-				47112E061D1A8AC2008E6365 /* HKWalkingRunning.m in Sources */,
 				47135F9B1D182A5300579406 /* ReadingDataViewController.m in Sources */,
 				47896E431D17FB8500693BF7 /* TPKeyboardAvoidingTableView.m in Sources */,
 			);

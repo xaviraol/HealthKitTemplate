@@ -122,7 +122,7 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) readSleepData{
-    [[HealthKitProvider sharedInstance] readSleepAnalysisFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toEndDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSError *error) {
+    [[HealthKitProvider sharedInstance] readSleepAnalysisFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h.", sleepTime / kSECONDS_IN_HOUR];
@@ -131,6 +131,12 @@ static int kSECONDS_IN_HOUR = 3600;
             NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
         }
     }];
+}
+
+//HKSource proves:
+- (IBAction) provesSource:(id)sender{
+    //cridar a la funcio que toca
+    [[HealthKitProvider sharedInstance] checkSourcesFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text]];
 }
 
 

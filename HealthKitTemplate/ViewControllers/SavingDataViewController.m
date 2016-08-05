@@ -38,7 +38,7 @@
     [_segmentedControl addTarget:self
                          action:@selector(changeIndex:)
                forControlEvents:UIControlEventValueChanged];
-    [self enableTextFieldsForIndex:_segmentedControl.selectedSegmentIndex];
+    [self enableTextFieldsForIndex:(int)_segmentedControl.selectedSegmentIndex];
     
     UIDatePicker *datePicker = [[UIDatePicker alloc]init];
     [datePicker setDate:[NSDate date]];
@@ -48,7 +48,7 @@
     
 }
 - (IBAction)addDateToHealthKit:(id)sender{
-    int index = _segmentedControl.selectedSegmentIndex;
+    int index = (int)_segmentedControl.selectedSegmentIndex;
 
     if (index == 0) {
         [self addWalkingData];
@@ -64,7 +64,7 @@
 }
 
 - (void) changeIndex:(id)sender{
-    [self enableTextFieldsForIndex:_segmentedControl.selectedSegmentIndex];
+    [self enableTextFieldsForIndex:(int)_segmentedControl.selectedSegmentIndex];
     _startDateTextfield.text = @"";
     _endDateTextfield.text = @"";
     _stepsTextfield.text = @"";

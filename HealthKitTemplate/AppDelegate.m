@@ -8,7 +8,6 @@
 
 #import "AppDelegate.h"
 #import "HealthKitProvider.h"
-#import <sys/sysctl.h>
 
 
 static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
@@ -22,17 +21,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     return YES;
-}
-
-- (BOOL) deviceHasMotionSensor{
-    size_t size;
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    char *machine = malloc(size);
-    sysctlbyname("hw.machine", machine, &size, NULL, 0);
-    NSString *platform = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
-    free(machine);
-    NSArray *devicesWithoutMotionSensor = @[@"iPhone6,1",@"iPhone6,2",@"iPhone7,1",@"iPhone7,2",@"iPhone8,1",@"iPhone8,2",@"x86_64",@"i386"];
-    return [devicesWithoutMotionSensor containsObject:platform];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

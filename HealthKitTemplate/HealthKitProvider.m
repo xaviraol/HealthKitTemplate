@@ -8,9 +8,6 @@
 
 #import "HealthKitProvider.h"
 #import <HealthKit/HealthKit.h>
-#import "HKWalkingRunning.h"
-#import "HKCycling.h"
-#import "HKStepCounterSensor.h"
 #import <UIKit/UIKit.h>
 
 
@@ -31,6 +28,22 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 
 # pragma mark - Healthkit Permissions
+
+- (void) requestHealthKitAuthorizationForDataTypes:(NSArray *)dataTypes withCompletion:(void(^)(BOOL success, NSError *error))completion{
+    
+    if ([HKHealthStore isHealthDataAvailable] == NO) {
+        return;
+    }
+    NSMutableArray *readTypes = [NSMutableArray new];
+    for (int i = 0;i<dataTypes.count ; i++) {
+        NSLog(@"DATATYPE: %@",dataTypes[i]);
+        [readTypes addObject:[self hKObjectTypeFromHealthKitDataType:dataTypes[i]]];
+    }
+    
+    [self.healthStore requestAuthorizationToShareTypes:nil readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
+        completion(success,error);
+    }];
+}
 
 - (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion{
     
@@ -95,9 +108,8 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 
 
-# pragma mark - Reading data from Healthkit
+# pragma mark - Reading Steps
 
-// StepCounter
 - (void) readCumulativeStepsFrom:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(int steps, NSError *error))completion{
     HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
     NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
@@ -136,7 +148,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     [self.healthStore executeQuery:stepQuery];
 }
 
-// Walking and Running
+# pragma mark - Reading Walking & Running data
 
 - (void) readWalkingTimeActiveFromDate:(NSDate *) startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     
@@ -152,7 +164,8 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-// Cycling
+# pragma mark - Reading Cycling data
+
 - (void) readCyclingTimeActiveFromDate:(NSDate*) startDate toDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     
     HKSampleType *cyclingSample = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
@@ -168,11 +181,64 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-// Sleep Analysis
+# pragma mark - Reading Sleep data
+
+- (void) readSleepAnalysisFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSError *error)) completion{
+    //llegir dades des de les 12 del migdia fins a les 12 del migdia del seguent dia.
+    HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    
+    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    
+    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:sleepAnalysis
+                                                           predicate:predicate
+                                                               limit:HKObjectQueryNoLimit
+                                                     sortDescriptors:@[sortDescriptor]
+                                                      resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+                                                          NSTimeInterval sleepTime = 0;
+                                                          for (HKQuantitySample *sample in results) {
+                                                              NSLog(@"StartDate: %@",sample.startDate);
+                                                              NSLog(@"EndDate: %@",sample.endDate);
+                                                              NSLog(@"Time Interval: %f", [sample.endDate timeIntervalSinceDate:sample.startDate]);
+                                                              sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
+                                                          }
+                                                          NSLog(@"Sleep time for this day: %f", sleepTime);
+                                                          NSLog(@"Results : %@",results);
+                                                          completion(sleepTime,error);
+                                                      }];
+    [self.healthStore executeQuery:query];
+
+}
 
 
+// Sources
+- (void) checkSourcesFromStartDate:(NSDate *)startDate toDate:(NSDate *)endDate{
+    NSSortDescriptor *timeSortDesriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierEndDate ascending:NO];
+    
+    HKQuantityType *quantityType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    HKSourceQuery *sourceQuery = [[HKSourceQuery alloc] initWithSampleType:quantityType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
+        NSLog(@"Sources: %@",sources);
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier = 'com.misfitwearables.Prometheus'"];
+        NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:predicate];
+        NSLog(@"Filtered Array : %@", tempResults);
+        
+        //TODO:
+        HKSource *targetedSource = [tempResults firstObject];
+        if(targetedSource){
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSource:targetedSource];
+            NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
+            HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:quantityType predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:[NSArray arrayWithObject:timeSortDesriptor] resultsHandler:^(HKSampleQuery *query, NSArray *results, NSError *error) {
+                //results array contains the HKSampleSample objects, whose source is "targetedSource".
+                NSLog(@"results: %@",results);
+            }];
+            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+        }
+    }];
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:sourceQuery];
+}
 
-/* Other methods */
+# pragma mark - Reading activity time and distance
 
 - (void) readActivityTimeActiveForSampleType:(HKSampleType *)sampleType fromDate:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval timeActive, NSError *error))completion{
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
@@ -209,7 +275,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
             totalDistance += distance;
             
             double distanceMeter = [[sampleData quantity] doubleValueForUnit:[HKUnit meterUnit]];
-            //            double distanceSecond = [[sampleData startDate] doubleValueForUnit:[HKUnit secondUnitWithMetricPrefix:HKMetricPrefixKilo]];
             NSDate *startDate = [sampleData startDate];
             NSDate *endDate = [sampleData endDate];
             NSTimeInterval distanceSecond = [endDate timeIntervalSinceDate:startDate];
@@ -217,51 +282,12 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
             double distanceMeterPerSecond = distanceMeter / distanceSecond;
             NSNumber *numberMeterPerSecond = [NSNumber numberWithDouble:distanceMeterPerSecond];
             [listOfSpeed addObject:numberMeterPerSecond];
-            
-            //            HKUnit *meters = [HKUnit meterUnit];
-            //            HKUnit *seconds = [HKUnit secondUnit];
-            //            HKUnit *metersPerSecond = [meters unitDividedByUnit:seconds];
-            //            HKQuantity *quantityPerSecond = [HKQuantity quantityWithUnit:metersPerSecond doubleValue:distanceMeter];
-            
-            //            NSLog(@"distance activity %f, %@, %f m/s", distance, quantityPerSecond, distanceMeterPerSecond);
-            
         }
         NSLog(@"total distance %f", totalDistance);
         completion(totalDistance, listOfSpeed, error);
     }];
     [self.healthStore executeQuery:stepQuery];
 }
-
-
-
-
-- (void) readSleepAnalysisFromStartDate:(NSDate*) startDate toEndDate:(NSDate*) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSError *error))completion{
-    
-    HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
-    //HKCategorySample *sleepSample = [HKCategorySample categorySampleWithType:sleepAnalysis value:HKCategoryValueSleepAnalysisInBed startDate:startDate endDate:endDate];
-    
-    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
-    
-    //HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
-    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:sleepAnalysis
-                                                           predicate:predicate
-                                                               limit:HKObjectQueryNoLimit
-                                                     sortDescriptors:@[sortDescriptor]
-                                                      resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
-                                                          NSTimeInterval sleepTime = 0;
-                                                          for (HKQuantitySample *sample in results) {
-                                                              NSLog(@"StartDate: %@",sample.startDate);
-                                                              NSLog(@"EndDate: %@",sample.endDate);
-                                                              NSLog(@"Time Interval: %f", [sample.endDate timeIntervalSinceDate:sample.startDate]);
-                                                              sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
-                                                          }
-                                                          completion(sleepTime,error);
-                                                      }];
-    [self.healthStore executeQuery:query];
-}
-
-
 
 #pragma mark - Helper methods to write custom data to HealthKit
 
@@ -312,37 +338,9 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
+# pragma mark - Creating HKObservers
 
-- (void) startObservingCyclingChanges{
-        HKSampleType *sampleType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling];
-        HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:sampleType predicate:nil updateHandler:^(HKObserverQuery *query,
-                                                                                                                      HKObserverQueryCompletionHandler completionHandler,
-                                                                                                                      NSError *error) {
-            
-            if (error) {
-                
-                // Perform Proper Error Handling Here...
-                NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
-                      error.localizedDescription);
-                abort();
-            }else{
-                [self commitNewHealthKitSample];
-                completionHandler();
-            }
-        }];
-        [self.healthStore enableBackgroundDeliveryForType:sampleType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {
-            if (success) {
-                NSLog(@"enabled background delivery!");
-            }else{
-                NSLog(@"failed to enabling backgroun delivery!");
-            }
-        }];
-        [self.healthStore executeQuery:query];
-}
 
-- (void) commitNewHealthKitSample{
-        NSLog(@"TIME ACTIVE de les bicis");
-}
 
 
 # pragma mark - Helper methods
@@ -358,81 +356,17 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     return (HKSampleType *)[[self healthKitDataTypeStringToHKSample] objectForKey:string];
 }
 
-
-
-# pragma mark - Not classified yet
-
-
-- (void) startObservingStepChanges{
-    HKSampleType *sampleType = [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-    HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:sampleType predicate:nil updateHandler:^(HKObserverQuery *query,
-                                                                                                                  HKObserverQueryCompletionHandler completionHandler,
-                                                                                                                  NSError *error) {
-        
-        if (error) {
-            
-            // Perform Proper Error Handling Here...
-            NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
-                  error.localizedDescription);
-            abort();
-        }else{
-            [self updateDailyStepCount];
-            completionHandler();
-        }
-    }];
-    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:sampleType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error) {
-        if (success) {
-            NSLog(@"enabled background delivery!");
-        }else{
-            NSLog(@"failed to enabling backgroun delivery!");
-        }
-    }];
-    [self.healthStore executeQuery:query];
-}
-- (void) updateDailyStepCount{
-    NSLog(@"Banyoles vinga va!");
-    
+- (HKObjectType *) hKObjectTypeFromHealthKitDataType:(NSString *) dataType{
+    NSLog(@"DATATYPE 2: %@", dataType);
+    NSLog(@"HKOBJECTTYPE:%@", (HKSampleType *)[[self healthKitDataTypeStringToHKSample] objectForKey:dataType]);
+    return (HKSampleType *)[[self healthKitDataTypeStringToHKSample] objectForKey:dataType];
 }
 
-- (void) setTimeActiveOnBackgroundForSampleType:(HKSampleType*) sampleType{
-    HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:sampleType predicate:nil updateHandler:^(HKObserverQuery *query, HKObserverQueryCompletionHandler completionHandler, NSError *error) {
-        if (error) {
-            NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
-                  error.localizedDescription);
-            abort();
-        }
-        //TODO: Deep investigation to understand how it works.
-        [self readCoveredDistanceForSampleType:sampleType fromStartDate:nil toEndDate:nil withCompletion:^(double totalDistance, NSArray *listOfSpeed, NSError *error) {
-            NSLog(@"Covered distance: %f", totalDistance);
-        }];
-    }];
-    [self.healthStore executeQuery:query];
-    
-    [self.healthStore enableBackgroundDeliveryForType:sampleType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
-        if (success) {
-            NSLog(@"success background changes");
-        }
-    }];
-}
-
-- (void) provesBackground{
-    HKSampleType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-    HKObserverQuery *query = [[HKObserverQuery alloc] initWithSampleType:stepCountType predicate:nil updateHandler:^(HKObserverQuery *query, HKObserverQueryCompletionHandler completionHandler, NSError *error) {
-        if (error) {
-            NSLog(@"*** An error occured while setting up the stepCount observer. %@ ***",
-                  error.localizedDescription);
-            abort();
-        }
-        HKStepCounterSensor *stepCounter = [[HKStepCounterSensor alloc] init];
-        [stepCounter onStepsUpdate];
-    }];
-    
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
-    [[HealthKitProvider sharedInstance].healthStore enableBackgroundDeliveryForType:stepCountType frequency:HKUpdateFrequencyImmediate withCompletion:^(BOOL success, NSError *error){
-        if (success) {
-            NSLog(@"Background changes enabled!");
-        }
-    }];
+- (NSDictionary*) healthKitObjectTypeToEnumMapping {
+    return @{@"step_count": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
+             @"walking_running": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning ],
+             @"cycling": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
+             @"sleep_analysis": [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]};
 }
 
 @end
