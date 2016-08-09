@@ -36,7 +36,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }
     NSMutableArray *readTypes = [NSMutableArray new];
     for (int i = 0;i<dataTypes.count ; i++) {
-        NSLog(@"DATATYPE: %@",dataTypes[i]);
         [readTypes addObject:[self hKObjectTypeFromHealthKitDataType:dataTypes[i]]];
     }
     
@@ -45,67 +44,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     }];
 }
 
-- (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion{
-    
-    if ([HKHealthStore isHealthDataAvailable] == NO) {
-        return;
-    }
-    NSArray *readTypes = @[
-                           [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning],
-                           [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
-                           [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
-                           [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis],
-
-                           ];
-    
-    NSArray *shareTypes = @[
-                            [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning],
-                            [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
-                            [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
-                            [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis],
-                            ];
-    
-    [self.healthStore requestAuthorizationToShareTypes:[NSSet setWithArray:shareTypes] readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
-        //[self startObservingStepChanges];
-        completion(success,error);
-    }];
-}
-
-- (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion{
-    
-    self.healthStore = [[HKHealthStore alloc] init];
-    if ([HKHealthStore isHealthDataAvailable] == NO) {
-        return;
-    }
-    NSArray *readTypes = @[[HKObjectType quantityTypeForIdentifier:[NSString stringWithFormat:@"%@",[self getHKSampleTypeFromString:dataType]]]];
-    [self.healthStore requestAuthorizationToShareTypes:[NSSet setWithArray:readTypes] readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
-        if (success) {
-            NSLog(@"[HealthKitDataProvider] Success!");
-        }else{
-            NSLog(@"[HealthKitDataProvider] Error!");
-            NSLog(@"Error: %@",error.localizedDescription);
-        }
-        completion(success,error);
-    }];
-}
-
-- (void) requestHealthKitAuthorizationForHKDataCategoryType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion{
-    
-    self.healthStore = [[HKHealthStore alloc] init];
-    if ([HKHealthStore isHealthDataAvailable] == NO) {
-        return;
-    }
-    NSArray *readTypes = @[[HKObjectType categoryTypeForIdentifier:[NSString stringWithFormat:@"%@",[self getHKSampleTypeFromString:dataType]]]];
-    [self.healthStore requestAuthorizationToShareTypes:nil readTypes:[NSSet setWithArray:readTypes] completion:^(BOOL success, NSError *error){
-        if (success) {
-            NSLog(@"[HealthKitDataProvider] Success!");
-        }else{
-            NSLog(@"[HealthKitDataProvider] Error!");
-            NSLog(@"Error: %@",error.localizedDescription);
-        }
-        completion(success,error);
-    }];
-}
 
 
 # pragma mark - Reading Steps
@@ -357,16 +295,12 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 
 - (HKObjectType *) hKObjectTypeFromHealthKitDataType:(NSString *) dataType{
-    NSLog(@"DATATYPE 2: %@", dataType);
-    NSLog(@"HKOBJECTTYPE:%@", (HKSampleType *)[[self healthKitDataTypeStringToHKSample] objectForKey:dataType]);
-    return (HKSampleType *)[[self healthKitDataTypeStringToHKSample] objectForKey:dataType];
-}
-
-- (NSDictionary*) healthKitObjectTypeToEnumMapping {
-    return @{@"step_count": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
-             @"walking_running": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning ],
-             @"cycling": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
-             @"sleep_analysis": [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]};
+    NSDictionary *objectTypeDictionary = @{@"step_count": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
+                                 @"walking_running": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning ],
+                                 @"cycling": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
+                                 @"sleep_analysis": [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]};
+    
+    return (HKSampleType *)[objectTypeDictionary objectForKey:dataType];
 }
 
 @end
