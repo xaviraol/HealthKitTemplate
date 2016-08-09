@@ -121,10 +121,8 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 
 # pragma mark - Reading Sleep data
 
-- (void) readSleepAnalysisFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSError *error)) completion{
-    //llegir dades des de les 12 del migdia fins a les 12 del migdia del seguent dia.
+- (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion{
     HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
-    
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
     
@@ -134,18 +132,18 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
                                                      sortDescriptors:@[sortDescriptor]
                                                       resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
                                                           NSTimeInterval sleepTime = 0;
+                                                          NSDate *startDate;
+                                                          NSDate *endDate;
+                                                          if (results.count >= 1) {
+                                                              startDate = results[0].startDate;
+                                                              endDate = results[results.count-1].endDate;
+                                                          }
                                                           for (HKQuantitySample *sample in results) {
-                                                              NSLog(@"StartDate: %@",sample.startDate);
-                                                              NSLog(@"EndDate: %@",sample.endDate);
-                                                              NSLog(@"Time Interval: %f", [sample.endDate timeIntervalSinceDate:sample.startDate]);
                                                               sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
                                                           }
-                                                          NSLog(@"Sleep time for this day: %f", sleepTime);
-                                                          NSLog(@"Results : %@",results);
-                                                          completion(sleepTime,error);
+                                                          completion(sleepTime, startDate, endDate, error);
                                                       }];
     [self.healthStore executeQuery:query];
-
 }
 
 

@@ -19,35 +19,16 @@
 
 /**
  *
- *   This method asks the user for the permissions to access Healthkit data. In this case, we ask for the
- *   permissions of the different data types at once. So the user can enable all of them at the same time. A part from that, with this method
- *   we ask for to read data that already exists in Healthkit and also to write new data to Healthkit.
+ *  This method asks the user for the permissions to access Healthkit data. In this case, we ask for the
+ *  permissions of the different data types at once. So the user can enable all of them at the same time. A part from that, with this method
+ *  we ask for to read data that already exists in Healthkit and also to write new data to Healthkit.
  *
- *   In this example, we ask permissions for: Walking and Running, Cycling, Step counter and Sleep Analysis.
+ *  @param nsarray array containing the names of the dataTypes that we want to ask permission for.
+ *  @param completion block with bool success and nserror error.
  *
  **/
 
 - (void) requestHealthKitAuthorizationForDataTypes:(NSArray *)dataTypes withCompletion:(void(^)(BOOL success, NSError *error))completion;
-
-- (void) requestHealthKitAuthorization:(void(^)(BOOL success, NSError *error))completion;
-
-/**
- *
- *   Similar as the previous method, but here we have a dataType string as an input.
- *   So in this method we ask permissions for only one dataType. In this case, we ask for permissions for a QuantityType.
- *   In this examples, our quantityTypes are stepCounter, walking and running, and cycling.
- *
- **/
-- (void) requestHealthKitAuthorizationForHKDataQuantityType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;
-
-/**
- *
- *   requestHealthKitAuthorizationForHKDataCategoryType: In this case, we ask for permissions for a QuantityType.
- *   In this examples, we have only one category type, sleep analysis.
- *
- **/
-- (void) requestHealthKitAuthorizationForHKDataCategoryType:(NSString*)dataType withCompletion:(void(^)(BOOL success, NSError *error))completion;
-
 
 #pragma mark - Reading data from Healthkit
 
@@ -81,7 +62,7 @@
 
 
 //reading sleep time
-- (void) readSleepAnalysisFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSError *error)) completion;
+- (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
 
 
 #pragma mark - Writing data to Healthkit

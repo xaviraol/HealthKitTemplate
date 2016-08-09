@@ -34,9 +34,16 @@ static int kSECONDS_IN_HOUR = 3600;
     _resultsFirstLabel.text = @"";
     _resultsSecondLabel.text = @"";
     
+
+    
     [_segmentedControl addTarget:self
                           action:@selector(changeIndex:)
                 forControlEvents:UIControlEventValueChanged];
+}
+
+- (void) viewDidAppear:(BOOL)animated{
+    _startDateTextfield.text = [_dateFormatter stringFromDate:[self getYesterdayAtFiveDate]];
+    _endDateTextfield.text = [_dateFormatter stringFromDate:[self getTodayAtFiveDate]];
 }
 
 
@@ -122,10 +129,14 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) readSleepData{
-    [[HealthKitProvider sharedInstance] readSleepAnalysisFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSError *error) {
+    
+    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h.", sleepTime / kSECONDS_IN_HOUR];
+                NSDateFormatter *hourMinuteFormatter = [[NSDateFormatter alloc] init];
+                [hourMinuteFormatter setDateFormat:@"HH:mm"];
+                _resultsSecondLabel.text = [NSString stringWithFormat:@"From %@h to %@h", [hourMinuteFormatter stringFromDate:startDate], [hourMinuteFormatter stringFromDate:endDate]];
             });
         } else {
             NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
@@ -140,7 +151,7 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 
-#pragma mark - UI Helper methods.
+#pragma mark - UI methods.
 
 - (void)updateTextField:(id)sender{
     UITextField *textField = sender;
@@ -173,6 +184,25 @@ static int kSECONDS_IN_HOUR = 3600;
     [datePicker addTarget:self action:@selector(updateTextField:) forControlEvents:UIControlEventValueChanged];
     [_startDateTextfield setInputView:datePicker];
     [_endDateTextfield setInputView:datePicker];
+}
+
+#pragma mark - Helper methods
+
+- (NSDate *) getYesterdayAtFiveDate{
+    return [[self beginningOfTheDay:[[NSDate date] dateByAddingTimeInterval:(-1)*24*60*60]] dateByAddingTimeInterval:17*60*60];
+}
+- (NSDate *) getTodayAtFiveDate{
+    return [[self beginningOfTheDay:[NSDate date]] dateByAddingTimeInterval:17*60*60];
+}
+
+- (NSDate *) beginningOfTheDay:(NSDate *)date{
+    
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents* components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
+    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    NSDate *beginningOfTheDay = [gregorianCalendar dateFromComponents:components];
+    
+    return  beginningOfTheDay;
 }
 
 
