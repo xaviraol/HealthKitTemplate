@@ -146,8 +146,9 @@ static int kSECONDS_IN_HOUR = 3600;
 
 //HKSource proves:
 - (IBAction) provesSource:(id)sender{
-    //cridar a la funcio que toca
-    [[HealthKitProvider sharedInstance] checkSourcesFromStartDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text]];
+    [[HealthKitProvider sharedInstance] getAllSourcesForDataType:@"sleep_analysis" withCompletion:^(NSArray *sources, NSError *error) {
+        NSLog(@"Array de sources: %@", sources);
+    }];
 }
 
 

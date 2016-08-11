@@ -76,10 +76,11 @@
 - (void) writeSleepAnalysisFromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion;
 
 
-#pragma mark - HKSource 
+#pragma mark - Dealing with HKSources
 
 - (void) checkSourcesFromStartDate:(NSDate *)startDate toDate:(NSDate *)endDate;
-
+- (void) retrievengSleepForACertainSource;
+- (void) getAllSourcesForDataType:(NSString *)dataType withCompletion:(void (^) (NSArray *sources, NSError *error))completion;
 
 
 @end

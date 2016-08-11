@@ -124,7 +124,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 - (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion{
     HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
     NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:NO];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
     
     HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:sleepAnalysis
                                                            predicate:predicate
@@ -132,46 +132,20 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
                                                      sortDescriptors:@[sortDescriptor]
                                                       resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
                                                           NSTimeInterval sleepTime = 0;
-                                                          NSDate *startDate;
-                                                          NSDate *endDate;
-                                                          if (results.count >= 1) {
-                                                              startDate = results[0].startDate;
-                                                              endDate = results[results.count-1].endDate;
-                                                          }
+                                                          //TODO: veure una manera per eliminar falsos positius per a dades d'sleep menors de xxx temps
+                                                          NSDate *mainStartDate;
+                                                          NSDate *mainEndDate;
+                                                          NSDate *lastStartDate;
+                                                          NSDate *lastEndDate;
+                                                          
+                                                          
                                                           for (HKQuantitySample *sample in results) {
+                                                              mainStartDate = sample.startDate;
                                                               sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
                                                           }
                                                           completion(sleepTime, startDate, endDate, error);
                                                       }];
     [self.healthStore executeQuery:query];
-}
-
-
-// Sources
-- (void) checkSourcesFromStartDate:(NSDate *)startDate toDate:(NSDate *)endDate{
-    NSSortDescriptor *timeSortDesriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierEndDate ascending:NO];
-    
-    HKQuantityType *quantityType = [HKQuantityType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
-    HKSourceQuery *sourceQuery = [[HKSourceQuery alloc] initWithSampleType:quantityType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
-        NSLog(@"Sources: %@",sources);
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier = 'com.misfitwearables.Prometheus'"];
-        NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:predicate];
-        NSLog(@"Filtered Array : %@", tempResults);
-        
-        //TODO:
-        HKSource *targetedSource = [tempResults firstObject];
-        if(targetedSource){
-            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSource:targetedSource];
-            NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
-            HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:quantityType predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:[NSArray arrayWithObject:timeSortDesriptor] resultsHandler:^(HKSampleQuery *query, NSArray *results, NSError *error) {
-                //results array contains the HKSampleSample objects, whose source is "targetedSource".
-                NSLog(@"results: %@",results);
-            }];
-            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
-        }
-    }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:sourceQuery];
 }
 
 # pragma mark - Reading activity time and distance
@@ -225,7 +199,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     [self.healthStore executeQuery:stepQuery];
 }
 
-#pragma mark - Helper methods to write custom data to HealthKit
+#pragma mark - Writting data to HealthKit
 
 - (void) writeWalkingRunningDistance:(double)distance fromStartDate:(NSDate*)startDate toEndDate:(NSDate*)endDate withCompletion:(void (^)(bool savedSuccessfully, NSError *error))completion{
     
@@ -273,6 +247,46 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
         completion(success, error);
     }];
 }
+#pragma mark - Dealing with HKSources
+
+- (void) getAllSourcesForDataType:(NSString *)dataType withCompletion:(void (^) (NSArray *sources, NSError *error))completion{
+    HKSampleType *sampleType = (HKSampleType *)[self hKObjectTypeFromHealthKitDataType:dataType];
+    
+    HKSourceQuery *sourceQuery = [[HKSourceQuery alloc] initWithSampleType:sampleType samplePredicate:nil completionHandler:^(HKSourceQuery * _Nonnull query, NSSet<HKSource *> * _Nullable sources, NSError * _Nullable error) {
+        if ([sources count]){
+            completion([sources allObjects], error);
+        } else {
+            completion(nil, error);
+        }
+    }];
+    [self.healthStore executeQuery:sourceQuery];
+}
+
+- (void) retrievengSleepForACertainSource{
+    NSSortDescriptor *timeSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
+    
+    HKCategoryType *categoryType = [HKCategoryType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:categoryType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
+        NSLog(@"All Sources: %@",sources);
+        NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier = 'HM.wristband'"];
+        NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:sleepSourcePredicate];
+        NSLog(@"Filtered Array for Sleep : %@", tempResults);
+        
+        HKSource *targetedSource = [tempResults firstObject];
+        if(targetedSource){
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSource:targetedSource];
+            NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:[self getYesterdayAtFiveDate] endDate:[self getTodayAtFiveDate] options:HKQueryOptionNone];
+            
+            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
+            HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:categoryType predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:[NSArray arrayWithObject:timeSortDescriptor] resultsHandler:^(HKSampleQuery *query, NSArray *results, NSError *error) {
+                //results array contains the HKSampleSample objects, whose source is "targetedSource".
+                NSLog(@"Results: %@",results);
+            }];
+            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+        }
+    }];
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
+}
 
 # pragma mark - Creating HKObservers
 
@@ -293,12 +307,29 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 }
 
 - (HKObjectType *) hKObjectTypeFromHealthKitDataType:(NSString *) dataType{
+    
     NSDictionary *objectTypeDictionary = @{@"step_count": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount],
-                                 @"walking_running": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning ],
-                                 @"cycling": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
-                                 @"sleep_analysis": [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]};
+                                           @"walking_running": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceWalkingRunning ],
+                                           @"cycling": [HKObjectType quantityTypeForIdentifier:HKQuantityTypeIdentifierDistanceCycling],
+                                           @"sleep_analysis": [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis]};
     
     return (HKSampleType *)[objectTypeDictionary objectForKey:dataType];
 }
 
+- (NSDate *) getYesterdayAtFiveDate{
+    return [[self beginningOfTheDay:[[NSDate date] dateByAddingTimeInterval:(-1)*24*60*60]] dateByAddingTimeInterval:17*60*60];
+}
+- (NSDate *) getTodayAtFiveDate{
+    return [[self beginningOfTheDay:[NSDate date]] dateByAddingTimeInterval:17*60*60];
+}
+
+- (NSDate *) beginningOfTheDay:(NSDate *)date{
+    
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents* components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
+    NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    NSDate *beginningOfTheDay = [gregorianCalendar dateFromComponents:components];
+    
+    return  beginningOfTheDay;
+}
 @end
