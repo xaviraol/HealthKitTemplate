@@ -52,10 +52,26 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     HKQuantityType *stepCountType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
     NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     
-    HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:stepPredicate options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
-        completion((int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]],error);
+    HKSourceQuery *sourceQuery = [[HKSourceQuery alloc] initWithSampleType:stepCountType samplePredicate:nil completionHandler:^(HKSourceQuery * _Nonnull query, NSSet<HKSource *> * _Nullable sources, NSError * _Nullable error) {
+        
+        NSMutableArray  *sourceArray = [[NSMutableArray alloc] init];
+        for (HKSource *source in sources) {
+            if ([source.bundleIdentifier hasPrefix:@"com.apple"]) {
+                [sourceArray addObject:source];
+            }
+        }
+        
+        if([sourceArray count]){
+            NSSet *sourceSet = [[NSSet alloc] initWithArray:sourceArray];
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSources:sourceSet];
+            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
+            HKStatisticsQuery *query = [[HKStatisticsQuery alloc] initWithQuantityType:stepCountType quantitySamplePredicate:predicate options:HKStatisticsOptionCumulativeSum completionHandler:^(HKStatisticsQuery * _Nonnull query, HKStatistics * _Nullable result, NSError * _Nullable error) {
+                completion((int)[result.sumQuantity doubleValueForUnit:[HKUnit countUnit]],error);
+            }];
+            [self.healthStore executeQuery:query];
+        }
     }];
-    [self.healthStore executeQuery:query];
+    [self.healthStore executeQuery:sourceQuery];
 }
 
 - (void) readStepsTimeActiveFromDate:(NSDate *)startDate toDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval timeInterval, NSError *error))completion{
@@ -63,27 +79,56 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
     NSSortDescriptor *stepSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
     
-    HKSampleQuery *stepQuery = [[HKSampleQuery alloc] initWithSampleType:type predicate:stepPredicate limit:HKObjectQueryNoLimit sortDescriptors:@[stepSortDescriptor] resultsHandler:^(HKSampleQuery *query, NSArray *hkSample, NSError *error){
-        
-        NSTimeInterval totalTime = 0;
-        NSDate *lastStepDataPoint;
-        NSDate *stepDataPointDate;
+    HKSourceQuery *sourceQuery = [[HKSourceQuery alloc] initWithSampleType:type samplePredicate:nil completionHandler:^(HKSourceQuery * _Nonnull query, NSSet<HKSource *> * _Nullable sources, NSError * _Nullable error) {
+        //NSLog(@"All Sources: %@",sources);
+        //NSLog(@"%@",[[UIDevice currentDevice] name]);
 
-        for (int i = 0; i < [hkSample count]; i++) {
-            HKQuantitySample *stepDataPoint = [hkSample objectAtIndex:i];
-            if ([[stepDataPoint quantity] doubleValueForUnit:[HKUnit countUnit]]>45) {
-                stepDataPointDate = [stepDataPoint startDate];
-                NSTimeInterval secondsBetweenDataPoints = [stepDataPointDate timeIntervalSinceDate:lastStepDataPoint];
-                if (secondsBetweenDataPoints < 300) {
-                    totalTime += secondsBetweenDataPoints;
-                }
+        NSMutableArray  *sourceArray = [[NSMutableArray alloc] init];
+        for (HKSource *source in sources) {
+            if ([source.bundleIdentifier hasPrefix:@"com.apple"]) {
+                [sourceArray addObject:source];
             }
-            lastStepDataPoint = stepDataPointDate;
         }
-        completion(totalTime, error);
+        //NSLog(@"Filtered Array of sources for Steps : %@", sourceArray);
+        
+        if([sourceArray count]){
+            NSSet *sourceSet = [[NSSet alloc] initWithArray:sourceArray];
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSources:sourceSet];
+            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
+
+            HKSampleQuery *stepQuery = [[HKSampleQuery alloc] initWithSampleType:type predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:@[stepSortDescriptor] resultsHandler:^(HKSampleQuery *query, NSArray *hkSample, NSError *error){
+                
+                NSTimeInterval totalTime = 0;
+                NSDate *lastStepDataPoint;
+                NSDate *stepDataPointDate;
+                
+                int timeBetweenDataPoints = 300;
+                
+                for (int i = 0; i < [hkSample count]; i++) {
+                    HKQuantitySample *stepDataPoint = [hkSample objectAtIndex:i];
+                    int steps = [[stepDataPoint quantity] doubleValueForUnit:[HKUnit countUnit]];
+                    if (steps >= 45) {
+                        if (steps >= 200) {
+                            timeBetweenDataPoints = 600;
+                        }
+                        stepDataPointDate = [stepDataPoint startDate];
+                        NSTimeInterval secondsBetweenDataPoints = [stepDataPointDate timeIntervalSinceDate:lastStepDataPoint];
+                        if (secondsBetweenDataPoints <= timeBetweenDataPoints) {
+                            totalTime += secondsBetweenDataPoints;
+                        }
+                    }
+                    lastStepDataPoint = stepDataPointDate;
+                }
+                completion(totalTime, error);
+            }];
+            
+            [self.healthStore executeQuery:stepQuery];
+        }
     }];
     
-    [self.healthStore executeQuery:stepQuery];
+    [self.healthStore executeQuery:sourceQuery];
+    
+
 }
 
 # pragma mark - Reading Walking & Running data
@@ -266,7 +311,8 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     NSSortDescriptor *timeSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
     
     HKCategoryType *categoryType = [HKCategoryType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
-    HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:categoryType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
+    HKSampleType *sampleType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
+    HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:sampleType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
         NSLog(@"All Sources: %@",sources);
         NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier = 'HM.wristband'"];
         NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:sleepSourcePredicate];

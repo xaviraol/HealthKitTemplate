@@ -42,8 +42,8 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) viewDidAppear:(BOOL)animated{
-    _startDateTextfield.text = [_dateFormatter stringFromDate:[self getYesterdayAtFiveDate]];
-    _endDateTextfield.text = [_dateFormatter stringFromDate:[self getTodayAtFiveDate]];
+    _startDateTextfield.text = [_dateFormatter stringFromDate:[self beginningOfTheDay:[NSDate date]]];
+    _endDateTextfield.text = [_dateFormatter stringFromDate:[NSDate date]];
 }
 
 
@@ -110,7 +110,7 @@ static int kSECONDS_IN_HOUR = 3600;
     [[HealthKitProvider sharedInstance] readCumulativeStepsFrom:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(int steps, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsFirstLabel.text = [NSString stringWithFormat:@"You did %d steps.",steps];
+                _resultsFirstLabel.text = [NSString stringWithFormat:@"Total steps: %d steps.",steps];
             });
         } else {
             NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
@@ -120,7 +120,7 @@ static int kSECONDS_IN_HOUR = 3600;
     [[HealthKitProvider sharedInstance] readStepsTimeActiveFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval timeInterval, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsSecondLabel.text = [NSString stringWithFormat:@"You've been walking for %.0f minutes.", timeInterval / 60];
+                _resultsSecondLabel.text = [NSString stringWithFormat:@"You've been walking for %.0f min.", timeInterval / 60];
             });
         } else {
             NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
@@ -170,8 +170,23 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 -(void)changeIndex:(id)sender{
-    _startDateTextfield.text = @"";
-    _endDateTextfield.text = @"";
+    int index = (int)_segmentedControl.selectedSegmentIndex;
+    if (index == 0) {
+        _startDateTextfield.text = @"";
+        _endDateTextfield.text = @"";
+
+    }else if (index == 1){
+        _startDateTextfield.text = @"";
+        _endDateTextfield.text = @"";
+
+    }else if (index == 2){
+        _startDateTextfield.text = [_dateFormatter stringFromDate:[self beginningOfTheDay:[NSDate date]]];
+        _endDateTextfield.text = [_dateFormatter stringFromDate:[NSDate date]];
+    }else{
+        _startDateTextfield.text = [_dateFormatter stringFromDate:[self getYesterdayAtFiveDate]];
+        _endDateTextfield.text = [_dateFormatter stringFromDate:[self getTodayAtFiveDate]];
+    }
+
     _resultsFirstLabel.text = @"";
     _resultsSecondLabel.text = @"";
 }
