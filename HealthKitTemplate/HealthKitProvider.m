@@ -109,7 +109,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
                     int steps = [[stepDataPoint quantity] doubleValueForUnit:[HKUnit countUnit]];
                     if (steps >= 45) {
                         if (steps >= 200) {
-                            timeBetweenDataPoints = 600;
+                            timeBetweenDataPoints = 400;
                         }
                         stepDataPointDate = [stepDataPoint startDate];
                         NSTimeInterval secondsBetweenDataPoints = [stepDataPointDate timeIntervalSinceDate:lastStepDataPoint];
@@ -166,32 +166,52 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 
 # pragma mark - Reading Sleep data
 
-- (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion{
-    HKCategoryType *sleepAnalysis = [HKObjectType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
-    NSPredicate *predicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
+- (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion{
     
-    HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:sleepAnalysis
-                                                           predicate:predicate
-                                                               limit:HKObjectQueryNoLimit
-                                                     sortDescriptors:@[sortDescriptor]
-                                                      resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
-                                                          NSTimeInterval sleepTime = 0;
-                                                          //TODO: veure una manera per eliminar falsos positius per a dades d'sleep menors de xxx temps
-                                                          NSDate *mainStartDate;
-                                                          NSDate *mainEndDate;
-                                                          NSDate *lastStartDate;
-                                                          NSDate *lastEndDate;
-                                                          
-                                                          
-                                                          for (HKQuantitySample *sample in results) {
-                                                              mainStartDate = sample.startDate;
-                                                              sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
-                                                          }
-                                                          completion(sleepTime, startDate, endDate, error);
-                                                      }];
-    [self.healthStore executeQuery:query];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    
+    NSSortDescriptor *timeSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
+    
+    HKCategoryType *categoryType = [HKCategoryType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:categoryType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
+        NSLog(@"All Sources: %@",sources);
+
+        NSArray *acceptedSources = @[@"com.apple.Health",@"com.aliphcom.upopen"];
+        NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier IN %@",acceptedSources]; //To get only data from
+        NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:sleepSourcePredicate];
+        HKSource *targetedSource = [tempResults firstObject];
+        
+        if(targetedSource){ //if there's jawbone
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSource:targetedSource];
+            NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+            
+            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
+            
+            HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:categoryType predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:[NSArray arrayWithObject:timeSortDescriptor] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+                
+                NSTimeInterval sleepTime = 0;
+                NSTimeInterval bedTime = 0;
+                
+                for (HKCategorySample *sample in results) {
+                    if (sample.value == HKCategoryValueSleepAnalysisAsleep) {
+                        NSLog(@"Sample: %@",sample);
+                        sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
+                    }else if (sample.value == HKCategoryValueSleepAnalysisInBed){
+                        bedTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
+                    }
+                    [[NSUserDefaults standardUserDefaults] setObject:[dateFormatter stringFromDate:sample.endDate] forKey:@"lastSavedSleepDate"];
+                    [[NSUserDefaults standardUserDefaults] synchronize];
+                }
+                completion(sleepTime, bedTime, startDate, endDate, error);
+            }];
+            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+        }
+    }];
+    
+    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
 }
+                                       
 
 # pragma mark - Reading activity time and distance
 
@@ -314,7 +334,7 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     HKSampleType *sampleType = [HKSampleType quantityTypeForIdentifier:HKQuantityTypeIdentifierStepCount];
     HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:sampleType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
         NSLog(@"All Sources: %@",sources);
-        NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier = 'HM.wristband'"];
+        NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier = 'com.aliphcom.upopen'"];
         NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:sleepSourcePredicate];
         NSLog(@"Filtered Array for Sleep : %@", tempResults);
         

@@ -42,8 +42,8 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) viewDidAppear:(BOOL)animated{
-    _startDateTextfield.text = [_dateFormatter stringFromDate:[self beginningOfTheDay:[NSDate date]]];
-    _endDateTextfield.text = [_dateFormatter stringFromDate:[NSDate date]];
+    _startDateTextfield.text = @"2016-08-12 17:00:00";
+    _endDateTextfield.text = @"2016-08-13 17:00:00";
 }
 
 
@@ -130,7 +130,8 @@ static int kSECONDS_IN_HOUR = 3600;
 
 - (void) readSleepData{
     
-    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error) {
+    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:[[NSUserDefaults standardUserDefaults] valueForKey:@"lastSavedSleepDate"]] toDate:[NSDate date] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
+//    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h.", sleepTime / kSECONDS_IN_HOUR];
@@ -183,8 +184,8 @@ static int kSECONDS_IN_HOUR = 3600;
         _startDateTextfield.text = [_dateFormatter stringFromDate:[self beginningOfTheDay:[NSDate date]]];
         _endDateTextfield.text = [_dateFormatter stringFromDate:[NSDate date]];
     }else{
-        _startDateTextfield.text = [_dateFormatter stringFromDate:[self getYesterdayAtFiveDate]];
-        _endDateTextfield.text = [_dateFormatter stringFromDate:[self getTodayAtFiveDate]];
+        _startDateTextfield.text = @"2016-08-12 17:00:00";
+        _endDateTextfield.text = @"2016-08-13 17:00:00";
     }
 
     _resultsFirstLabel.text = @"";

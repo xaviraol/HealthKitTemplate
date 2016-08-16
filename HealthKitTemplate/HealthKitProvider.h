@@ -62,7 +62,7 @@
 
 
 //reading sleep time
-- (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
+- (void) readSleepFromDate:(NSDate *)startDate toDate:(NSDate *) endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
 
 
 #pragma mark - Writing data to Healthkit
