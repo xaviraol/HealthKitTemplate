@@ -130,8 +130,8 @@ static int kSECONDS_IN_HOUR = 3600;
 
 - (void) readSleepData{
     
-    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:[[NSUserDefaults standardUserDefaults] valueForKey:@"lastSavedSleepDate"]] toDate:[NSDate date] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
-//    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
+//[[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:[[NSUserDefaults standardUserDefaults] valueForKey:@"lastSavedSleepDate"]] toDate:[NSDate date] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
+    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h.", sleepTime / kSECONDS_IN_HOUR];

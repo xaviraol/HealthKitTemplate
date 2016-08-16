@@ -357,8 +357,6 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 # pragma mark - Creating HKObservers
 
 
-
-
 # pragma mark - Helper methods
 
 - (NSDictionary*) healthKitDataTypeStringToHKSample {
