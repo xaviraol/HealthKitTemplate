@@ -14,6 +14,12 @@
 @interface AuthorizationViewController ()
 
 @property (nonatomic,weak) IBOutlet UILabel *registrationFeedback;
+@property (nonatomic,weak) IBOutlet UISwitch *generalSwitch;
+@property (nonatomic,weak) IBOutlet UISwitch *stepCountSwitch;
+@property (nonatomic,weak) IBOutlet UISwitch *walkingSwitch;
+@property (nonatomic,weak) IBOutlet UISwitch *cyclingSwitch;
+@property (nonatomic,weak) IBOutlet UISwitch *sleepSwitch;
+
 
 @end
 
@@ -24,6 +30,28 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     _registrationFeedback.text = @"";
+    
+    int allOfThem;
+    if ([self getAuthorizationValueFor:@"step_count"]) {
+        [_stepCountSwitch setOn:YES];
+        allOfThem+=1;
+    }
+    if ([self getAuthorizationValueFor:@"walking_running"]) {
+        [_walkingSwitch setOn:YES];
+        allOfThem+=1;
+    }
+    if ([self getAuthorizationValueFor:@"cycling"]) {
+        [_cyclingSwitch setOn:YES];
+        allOfThem+=1;
+    }
+    if ([self getAuthorizationValueFor:@"sleep_analysis"]) {
+        [_sleepSwitch setOn:YES];
+        allOfThem+=1;
+    }
+    if (allOfThem == 4) {
+        [_generalSwitch setOn:YES];
+    }
+    
 }
 
 - (IBAction) healthIntegrationButtonSwitched:(UISwitch*)sender {
@@ -40,6 +68,11 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     _registrationFeedback.text = [NSString stringWithFormat:@"Authorization succeded!"];
                     _registrationFeedback.textColor = [UIColor greenColor];
+                    [self saveToUserDefaultsAuthorizationFor:dataTypes];
+                    [_sleepSwitch setOn:YES];
+                    [_stepCountSwitch setOn:YES];
+                    [_walkingSwitch setOn:YES];
+                    [_cyclingSwitch setOn:YES];
                 });
             }
         }];
@@ -48,6 +81,7 @@
         //disable HealthKit
     }
 }
+
 
 - (IBAction)stepCountsIntegrationButtonSwitched:(UISwitch*)sender{
     if (sender.isOn) {
@@ -59,6 +93,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     _registrationFeedback.text = [NSString stringWithFormat:@"Authorization succeded!"];
                     _registrationFeedback.textColor = [UIColor greenColor];
+                    [self saveToUserDefaultsAuthorizationFor:dataTypes];
                 });
             }
         }];
@@ -78,6 +113,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     _registrationFeedback.text = [NSString stringWithFormat:@"Authorization succeded!"];
                     _registrationFeedback.textColor = [UIColor greenColor];
+                    [self saveToUserDefaultsAuthorizationFor:dataTypes];
                 });
             }
         }];
@@ -97,6 +133,7 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     _registrationFeedback.text = [NSString stringWithFormat:@"Authorization succeded!"];
                     _registrationFeedback.textColor = [UIColor greenColor];
+                    [self saveToUserDefaultsAuthorizationFor:dataTypes];
                 });
             }
         }];
@@ -106,6 +143,25 @@
     }
 }
 
+- (IBAction)cyclingIntegrationButtonSwitched:(UISwitch*)sender{
+    if (sender.isOn) {
+        
+        NSArray *dataTypes = @[@"cycling"];
+        
+        [[HealthKitProvider sharedInstance] requestHealthKitAuthorizationForDataTypes:dataTypes withCompletion:^(BOOL success, NSError *error) {
+            if (success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    _registrationFeedback.text = [NSString stringWithFormat:@"Authorization succeded!"];
+                    _registrationFeedback.textColor = [UIColor greenColor];
+                    [self saveToUserDefaultsAuthorizationFor:dataTypes];
+                });
+            }
+        }];
+        
+    }else{
+        //disable HealthKit
+    }
+}
 #pragma mark - Helper methods.
 
 /**
@@ -126,5 +182,19 @@
     return [devicesWithoutMotionSensor containsObject:platform];
 }
 
+
+- (void) saveToUserDefaultsAuthorizationFor:(NSArray *)dataTypes{
+    
+    for (int i = 0; i < dataTypes.count; i++) {
+        NSString *stringKey = [NSString stringWithFormat:@"%@_authorization",dataTypes[i]];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:stringKey];
+    }
+    
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL) getAuthorizationValueFor:(NSString *)dataType{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"%@_authorization",dataType]];
+}
 
 @end
