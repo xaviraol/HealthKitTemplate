@@ -8,6 +8,7 @@
 
 #import "ReadingDataViewController.h"
 #import "HealthKitProvider.h"
+#import "SleepDataProvider.h"
 
 static int kSECONDS_IN_HOUR = 3600;
 @interface ReadingDataViewController ()
@@ -42,7 +43,7 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) viewDidAppear:(BOOL)animated{
-    _startDateTextfield.text = @"2016-08-12 17:00:00";
+    _startDateTextfield.text = @"2016-08-16 17:00:00";
     _endDateTextfield.text = @"2016-08-13 17:00:00";
 }
 
@@ -130,11 +131,36 @@ static int kSECONDS_IN_HOUR = 3600;
 
 - (void) readSleepData{
     
-//[[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:[[NSUserDefaults standardUserDefaults] valueForKey:@"lastSavedSleepDate"]] toDate:[NSDate date] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
-    [[HealthKitProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
+    //Read ended sleep for a day:
+//    [[SleepDataProvider sharedInstance] readEndedSleepForDay:[_dateFormatter dateFromString:_startDateTextfield.text] withCompletion:^(NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime) {
+//        NSLog(@"[readEndedSleepForDay] SleepDataPoints: %@",sleepDataPoints);
+//        NSLog(@"[readEndedSleepForDay] TotalSleepTime: %f",totalSleepTime);
+//        NSLog(@"[readEndedSleepForDay] TotalBedTime: %f",totalBedTime);
+//
+//    }];
+//    
+//    //Read real sleep for a day:
+//    [[SleepDataProvider sharedInstance] readRealSleepForDay:[_dateFormatter dateFromString:_startDateTextfield.text] withCompletion:^(NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime) {
+//        NSLog(@"[readRealSleepForDay] SleepDataPoints: %@",sleepDataPoints);
+//        NSLog(@"[readRealSleepForDay] TotalSleepTime: %f",totalSleepTime);
+//        NSLog(@"[readRealSleepForDay] TotalBedTime: %f",totalBedTime);
+//    }];
+    
+    //--------------------------
+    
+// Get sleep data for only a day:
+//    [[SleepDataProvider sharedInstance] readSleepForDay:[NSDate date] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime) {
+//        NSLog(@"S'ha complert !");
+//    }];
+    
+// Get sleep data for more than one day:
+//    [[SleepDataProvider sharedInstance] readSleepForVariousDays:[NSDate date] withCompletion:^(NSDictionary *days) {
+//        NSLog(@"Days dictionary: %@",days);
+//    }];
+    [[SleepDataProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
         if (!error) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h.", sleepTime / kSECONDS_IN_HOUR];
+                _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h. bedTime: %.2f h", sleepTime / kSECONDS_IN_HOUR, bedTime / kSECONDS_IN_HOUR];
                 NSDateFormatter *hourMinuteFormatter = [[NSDateFormatter alloc] init];
                 [hourMinuteFormatter setDateFormat:@"HH:mm"];
                 _resultsSecondLabel.text = [NSString stringWithFormat:@"From %@h to %@h", [hourMinuteFormatter stringFromDate:startDate], [hourMinuteFormatter stringFromDate:endDate]];

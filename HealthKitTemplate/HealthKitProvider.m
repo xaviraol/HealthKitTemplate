@@ -23,7 +23,9 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     
     static HealthKitProvider *instance = nil;
     instance = [[HealthKitProvider alloc] init];
-    instance.healthStore = [[HKHealthStore alloc] init];
+    if (!instance.healthStore) {
+        instance.healthStore = [[HKHealthStore alloc] init];
+    }
     return instance;
 }
 
@@ -175,15 +177,15 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
     
     HKCategoryType *categoryType = [HKCategoryType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
     HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:categoryType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
-        NSLog(@"All Sources: %@",sources);
+        //NSLog(@"All Sources: %@",sources);
 
-        NSArray *acceptedSources = @[@"com.apple.Health",@"com.aliphcom.upopen"];
+        NSArray *acceptedSources = @[@"com.apple.Health",@"com.aliphcom.upopen"]; //sleep data from apple health (added by user) and data from Jawbone wearable.
         NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier IN %@",acceptedSources]; //To get only data from
         NSArray  *tempResults = [[sources allObjects] filteredArrayUsingPredicate:sleepSourcePredicate];
-        HKSource *targetedSource = [tempResults firstObject];
         
-        if(targetedSource){ //if there's jawbone
-            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSource:targetedSource];
+        if([tempResults count] >= 1){
+            NSSet *sourceSet = [NSSet setWithArray:tempResults];
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSources:sourceSet];
             NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
             
             NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
@@ -195,9 +197,11 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
                 
                 for (HKCategorySample *sample in results) {
                     if (sample.value == HKCategoryValueSleepAnalysisAsleep) {
-                        NSLog(@"Sample: %@",sample);
+                        NSLog(@"Sample Asleep: %@",sample);
                         sleepTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
                     }else if (sample.value == HKCategoryValueSleepAnalysisInBed){
+                        NSLog(@"Sample Asleep: %@",sample);
+
                         bedTime += [sample.endDate timeIntervalSinceDate:sample.startDate];
                     }
                     [[NSUserDefaults standardUserDefaults] setObject:[dateFormatter stringFromDate:sample.endDate] forKey:@"lastSavedSleepDate"];

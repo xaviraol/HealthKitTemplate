@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4701ECC81D6456E700A2A8A9 /* SleepDataProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 4701ECC71D6456E700A2A8A9 /* SleepDataProvider.m */; };
 		47135F9A1D182A5300579406 /* AuthorizationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F951D182A5300579406 /* AuthorizationViewController.m */; };
 		47135F9B1D182A5300579406 /* ReadingDataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F971D182A5300579406 /* ReadingDataViewController.m */; };
 		47135F9C1D182A5300579406 /* SavingDataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 47135F991D182A5300579406 /* SavingDataViewController.m */; };
@@ -43,6 +44,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4701ECC61D6456E700A2A8A9 /* SleepDataProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SleepDataProvider.h; sourceTree = "<group>"; };
+		4701ECC71D6456E700A2A8A9 /* SleepDataProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SleepDataProvider.m; sourceTree = "<group>"; };
 		47135F941D182A5300579406 /* AuthorizationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationViewController.h; sourceTree = "<group>"; };
 		47135F951D182A5300579406 /* AuthorizationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthorizationViewController.m; sourceTree = "<group>"; };
 		47135F961D182A5300579406 /* ReadingDataViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadingDataViewController.h; sourceTree = "<group>"; };
@@ -140,6 +143,8 @@
 		471FA6E61D12CEB6006D8E29 /* HealthKitTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				4701ECC61D6456E700A2A8A9 /* SleepDataProvider.h */,
+				4701ECC71D6456E700A2A8A9 /* SleepDataProvider.m */,
 				471FA7201D12D0E6006D8E29 /* HealthKitProvider.h */,
 				471FA7211D12D0E6006D8E29 /* HealthKitProvider.m */,
 				47135F931D182A5300579406 /* ViewControllers */,
@@ -341,6 +346,7 @@
 			files = (
 				47135F9A1D182A5300579406 /* AuthorizationViewController.m in Sources */,
 				47896E441D17FB8500693BF7 /* UIScrollView+TPKeyboardAvoidingAdditions.m in Sources */,
+				4701ECC81D6456E700A2A8A9 /* SleepDataProvider.m in Sources */,
 				47896E421D17FB8500693BF7 /* TPKeyboardAvoidingScrollView.m in Sources */,
 				47896E411D17FB8500693BF7 /* TPKeyboardAvoidingCollectionView.m in Sources */,
 				471FA6EC1D12CEB6006D8E29 /* AppDelegate.m in Sources */,
