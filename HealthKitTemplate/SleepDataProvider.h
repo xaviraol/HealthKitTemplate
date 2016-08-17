@@ -20,12 +20,14 @@
 
 - (void) readRealSleepForDay:(NSDate *)day withCompletion:(void (^) (NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime))completion;
 
+//review
 - (void) readSleepForVariousDays:(NSDate *)day withCompletion:(void (^) (NSDictionary *days))completion;
 
+
+//not implemented
 - (void) readRealSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
-
+//not implemented
 - (void) readEndedSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
-
 
 
 
