@@ -19,14 +19,22 @@ static NSString* kHEALTHKIT_AUTHORIZATION = @"healthkit_authorization";
 
 @implementation HealthKitProvider
 
-+ (HealthKitProvider *)sharedInstance {
-    
-    static HealthKitProvider *instance = nil;
-    instance = [[HealthKitProvider alloc] init];
-    if (!instance.healthStore) {
-        instance.healthStore = [[HKHealthStore alloc] init];
++ (HealthKitProvider*) sharedInstance{
+    static HealthKitProvider* sharedInstance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[HealthKitProvider alloc] init];
+    });
+    return sharedInstance;
+}
+
+- (id) init {
+    self = [super init];
+    if (self) {
+        self.healthStore = [[HKHealthStore alloc] init];
+        
     }
-    return instance;
+    return self;
 }
 
 # pragma mark - Healthkit Permissions

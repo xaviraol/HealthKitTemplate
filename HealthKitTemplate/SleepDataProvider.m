@@ -12,23 +12,26 @@
 @implementation SleepDataProvider
 
 
-+ (SleepDataProvider *)sharedInstance {
-    
-    static SleepDataProvider *instance = nil;
-    instance = [[SleepDataProvider alloc] init];
-    
-    if (!instance.dateFormatter) {
-        instance.dateFormatter = [[NSDateFormatter alloc] init];
-        [instance.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    }
-    
-    if(!instance.calendar){
-        instance.calendar = [NSCalendar currentCalendar];
-    }
-
-    return instance;
++ (SleepDataProvider*) sharedInstance{
+    static SleepDataProvider* sharedInstance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[SleepDataProvider alloc] init];
+    });
+    return sharedInstance;
 }
-# pragma mark - Reading Sleep data
+
+- (id) init {
+    self = [super init];
+    if (self) {
+        self.healthStore = [[HKHealthStore alloc] init];
+        self.dateFormatter = [[NSDateFormatter alloc] init];
+        [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        self.calendar = [NSCalendar currentCalendar];
+    }
+    return self;
+}
+
 //Read Real Sleep in a certain Day:
 - (void) readRealSleepForDay:(NSDate *)day withCompletion:(void (^) (NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime))completion{
     
@@ -70,10 +73,10 @@
                 }
                 completion(results, sleepTime, sleepTime);//TODOX els resultats son tots els datapoints relacionats amb la data, no estan filtrats. el betTime encara no existeix.
             }];
-            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+            [self.healthStore executeQuery:query];
         }
     }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
+    [self.healthStore executeQuery:sleepSourceQuery];
 }
 
 
@@ -116,11 +119,43 @@
                 
                 completion(filteredResults, sleepToday, sleepYesterday);//TODOX
             }];
-            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+            [self.healthStore executeQuery:query];
         }
     }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
+    [self.healthStore executeQuery:sleepSourceQuery];
     
+}
+
+//Read ended sleep data between two data points.
+- (void) readEndedSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSArray *sleepDataPoints, NSTimeInterval sleepTime, NSTimeInterval bedTime, NSError *error)) completion{
+
+    startDate = [self beginningOfTheDay:startDate];
+    endDate = [self endOfTheDay:endDate];
+    
+    NSSortDescriptor *timeSortDescriptor = [[NSSortDescriptor alloc] initWithKey:HKSampleSortIdentifierStartDate ascending:YES];
+    
+    HKCategoryType *categoryType = [HKCategoryType categoryTypeForIdentifier:HKCategoryTypeIdentifierSleepAnalysis];
+    HKSourceQuery *sleepSourceQuery = [[HKSourceQuery alloc] initWithSampleType:categoryType samplePredicate:nil completionHandler:^(HKSourceQuery *query, NSSet *sources, NSError *error) {
+        
+        NSArray *acceptedSources = @[@"com.apple.Health"/*,@"com.aliphcom.upopen"*/]; //sleep data from apple health (added by user) and data from Jawbone wearable.
+        NSPredicate *sleepSourcePredicate = [NSPredicate predicateWithFormat:@"SELF.bundleIdentifier IN %@",acceptedSources]; //To get only data from
+        NSArray  *filteredSources = [[sources allObjects] filteredArrayUsingPredicate:sleepSourcePredicate];
+        
+        if([filteredSources count] >= 1){
+            NSSet *sourceSet = [NSSet setWithArray:filteredSources];
+            NSPredicate *sourcePredicate = [HKQuery predicateForObjectsFromSources:sourceSet];
+            NSPredicate *stepPredicate = [HKQuery predicateForSamplesWithStartDate:startDate endDate:endDate options:HKQueryOptionNone];
+            
+            NSPredicate *predicate = [NSCompoundPredicate andPredicateWithSubpredicates: @[sourcePredicate, stepPredicate]];
+            
+            HKSampleQuery *query = [[HKSampleQuery alloc] initWithSampleType:categoryType predicate:predicate limit:HKObjectQueryNoLimit sortDescriptors:[NSArray arrayWithObject:timeSortDescriptor] resultsHandler:^(HKSampleQuery * _Nonnull query, NSArray<__kindof HKSample *> * _Nullable results, NSError * _Nullable error) {
+                NSLog(@"Results: %@", results);
+            }];
+            [self.healthStore executeQuery:query];
+        }
+    }];
+    [self.healthStore executeQuery:sleepSourceQuery];
+
 }
 
 
@@ -188,10 +223,10 @@
                 //not useful
                 completion(sleepYesterday, sleepToday);
             }];
-            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+            [self.healthStore executeQuery:query];
         }
     }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
+    [self.healthStore executeQuery:sleepSourceQuery];
 }
 
 - (void) readSleepForVariousDays:(NSDate *)day withCompletion:(void (^) (NSDictionary *days))completion{
@@ -260,10 +295,10 @@
                 //not useful
                 //completion(sleepYesterday, sleepToday);
             }];
-            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+            [self.healthStore executeQuery:query];
         }
     }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
+    [self.healthStore executeQuery:sleepSourceQuery];
 }
 
 - (NSTimeInterval) timeIntervalBetween:(NSDate *)startDate andDate:(NSDate *)endDate{
@@ -307,10 +342,10 @@
                 }
                 completion(sleepTime, bedTime, startDate, endDate, error);
             }];
-            [[HealthKitProvider sharedInstance].healthStore executeQuery:query];
+            [self.healthStore executeQuery:query];
         }
     }];
-    [[HealthKitProvider sharedInstance].healthStore executeQuery:sleepSourceQuery];
+    [self.healthStore executeQuery:sleepSourceQuery];
 }
 
 #pragma mark - Helper methods
@@ -320,6 +355,10 @@
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDateComponents* components = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
     NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    
+    [components setHour:00];
+    [components setMinute:00];
+    [components setSecond:00];
     
     NSDate *beginningOfTheDay = [gregorianCalendar dateFromComponents:components];
     return  beginningOfTheDay;

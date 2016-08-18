@@ -43,8 +43,9 @@ static int kSECONDS_IN_HOUR = 3600;
 }
 
 - (void) viewDidAppear:(BOOL)animated{
-    _startDateTextfield.text = @"2016-08-16 17:00:00";
-    _endDateTextfield.text = @"2016-08-13 17:00:00";
+    _startDateTextfield.text = @"2016-08-15 12:45:01";
+    _endDateTextfield.text = @"2016-08-16 23:59:59";
+    
 }
 
 
@@ -138,7 +139,8 @@ static int kSECONDS_IN_HOUR = 3600;
 //        NSLog(@"[readEndedSleepForDay] TotalBedTime: %f",totalBedTime);
 //
 //    }];
-//    
+
+    
 //    //Read real sleep for a day:
 //    [[SleepDataProvider sharedInstance] readRealSleepForDay:[_dateFormatter dateFromString:_startDateTextfield.text] withCompletion:^(NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime) {
 //        NSLog(@"[readRealSleepForDay] SleepDataPoints: %@",sleepDataPoints);
@@ -146,6 +148,30 @@ static int kSECONDS_IN_HOUR = 3600;
 //        NSLog(@"[readRealSleepForDay] TotalBedTime: %f",totalBedTime);
 //    }];
     
+    
+//    [[SleepDataProvider sharedInstance] readEndedSleepBetweenDate:[_dateFormatter dateFromString:_startDateTextfield.text] andDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSArray *sleepDataPoints, NSTimeInterval sleepTime, NSTimeInterval bedTime, NSError *error) {
+//        NSLog(@"[readRealSleepForDay] SleepDataPoints: %@",sleepDataPoints);
+//        NSLog(@"[readRealSleepForDay] TotalSleepTime: %f",sleepTime);
+//        NSLog(@"[readRealSleepForDay] TotalBedTime: %f",bedTime);
+//    }];
+    
+    //Read ended and real data since a given date:
+    NSDate *lastSavedDate = [_dateFormatter dateFromString:@"2016-08-15 00:00:01"];
+    NSArray *datesBetween = [self daysBetweenDate:lastSavedDate toDate:[NSDate date]];
+    for (int i = 0; i < [datesBetween count]; i++) {
+        NSDate *date = [datesBetween objectAtIndex:i];
+//        [[SleepDataProvider sharedInstance] readEndedSleepForDay:date withCompletion:^(NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime) {
+//            NSLog(@"[readEndedSleepForDay: %@] SleepDataPoints: %@",date, sleepDataPoints);
+//            NSLog(@"[readEndedSleepForDay: %@] TotalSleepTime: %f",date, totalSleepTime);
+//            NSLog(@"[readEndedSleepForDay: %@] TotalBedTime: %f\n",date, totalBedTime);
+//        }];
+        [[SleepDataProvider sharedInstance] readRealSleepForDay:date withCompletion:^(NSArray *sleepDataPoints, NSTimeInterval totalSleepTime, NSTimeInterval totalBedTime) {
+            NSLog(@"[readRealSleepForDay: %@] SleepDataPoints: %@",date, sleepDataPoints);
+            NSLog(@"[readRealSleepForDay: %@] TotalSleepTime: %f",date, totalSleepTime);
+            NSLog(@"[readRealSleepForDay: %@] TotalBedTime: %f\n",date, totalBedTime);
+        }];
+    }
+
     //--------------------------
     
 // Get sleep data for only a day:
@@ -157,18 +183,40 @@ static int kSECONDS_IN_HOUR = 3600;
 //    [[SleepDataProvider sharedInstance] readSleepForVariousDays:[NSDate date] withCompletion:^(NSDictionary *days) {
 //        NSLog(@"Days dictionary: %@",days);
 //    }];
-    [[SleepDataProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
-        if (!error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h. bedTime: %.2f h", sleepTime / kSECONDS_IN_HOUR, bedTime / kSECONDS_IN_HOUR];
-                NSDateFormatter *hourMinuteFormatter = [[NSDateFormatter alloc] init];
-                [hourMinuteFormatter setDateFormat:@"HH:mm"];
-                _resultsSecondLabel.text = [NSString stringWithFormat:@"From %@h to %@h", [hourMinuteFormatter stringFromDate:startDate], [hourMinuteFormatter stringFromDate:endDate]];
-            });
-        } else {
-            NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
-        }
-    }];
+//    [[SleepDataProvider sharedInstance] readSleepFromDate:[_dateFormatter dateFromString:_startDateTextfield.text] toDate:[_dateFormatter dateFromString:_endDateTextfield.text] withCompletion:^(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error) {
+//        if (!error) {
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                _resultsFirstLabel.text = [NSString stringWithFormat:@"You slept for %.2f h. bedTime: %.2f h", sleepTime / kSECONDS_IN_HOUR, bedTime / kSECONDS_IN_HOUR];
+//                NSDateFormatter *hourMinuteFormatter = [[NSDateFormatter alloc] init];
+//                [hourMinuteFormatter setDateFormat:@"HH:mm"];
+//                _resultsSecondLabel.text = [NSString stringWithFormat:@"From %@h to %@h", [hourMinuteFormatter stringFromDate:startDate], [hourMinuteFormatter stringFromDate:endDate]];
+//            });
+//        } else {
+//            NSLog(@"Error retrieving sleep data: %@", error.localizedDescription);
+//        }
+//    }];
+}
+
+-(NSArray *) daysBetweenDate:(NSDate *)fromDate toDate:(NSDate *)toDate{
+    
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+
+    [calendar rangeOfUnit:NSCalendarUnitDay startDate:&fromDate interval:NULL forDate:fromDate];
+    [calendar rangeOfUnit:NSCalendarUnitDay startDate:&toDate interval:NULL forDate:toDate];
+    
+    NSDateComponents *difference = [calendar components:NSCalendarUnitDay
+                                               fromDate:fromDate toDate:toDate options:0];
+    NSLog(@"Difference day: %ld", (long)[difference day]);
+    
+    NSMutableArray *datesBetween = [NSMutableArray new];
+    NSDate *lastDate = fromDate;
+    for (int i = 0; i <= [difference day]; i++) {
+        [datesBetween addObject:lastDate];
+        lastDate = [lastDate dateByAddingTimeInterval:24*60*60];
+    }
+    NSLog(@"Dates: %@",datesBetween);
+    return datesBetween;
+
 }
 
 //HKSource proves:

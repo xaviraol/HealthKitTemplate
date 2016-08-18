@@ -13,6 +13,7 @@
 
 + (SleepDataProvider *) sharedInstance;
 
+@property (nonatomic, retain) HKHealthStore *healthStore;
 @property (nonatomic, retain) NSDateFormatter *dateFormatter;
 @property (nonatomic, retain) NSCalendar *calendar;
 
@@ -25,10 +26,9 @@
 
 
 //not implemented
-- (void) readRealSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
+- (void) readEndedSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSArray *sleepDataPoints, NSTimeInterval sleepTime, NSTimeInterval bedTime, NSError *error)) completion;
 //not implemented
-- (void) readEndedSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSTimeInterval sleepTime, NSTimeInterval bedTime, NSDate *startDate, NSDate *endDate, NSError *error)) completion;
-
+- (void) readRealSleepBetweenDate:(NSDate *)startDate andDate:(NSDate *)endDate withCompletion:(void (^)(NSArray *sleepDataPoints, NSTimeInterval sleepTime, NSTimeInterval bedTime, NSError *error)) completion;
 
 
 //---------------------------------------------
